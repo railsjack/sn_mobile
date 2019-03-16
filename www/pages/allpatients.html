@@ -1,0 +1,73 @@
+<!-- mainController : Operators page -->
+<!-- General Bottom Nav -->
+
+<!-- Top Navs -->
+	
+<div class="scrollable custom-main-general-content allpatients" style="padding-top: 65px;">
+	<div class="col-xs-12 searchBar">
+	    <input class="form-control" placeholder="Search" ng-model="search.name" 
+	    autocomplete="off" autocorrect="off" spellcheck="false" type="text" />
+        
+	</div>
+    
+	<div class="scrollable-content section">
+		<ul class='patients-list'>
+			<li data-ng-repeat="lovedone in user.lovedones | filter: search" >
+            	<!--<span class="inactivate" style="float:right;text-align:center;line-height:50px;" ng-show="lovedone.selected_by_me" ng-click="open_activepatients()">X</span> -->
+				<span style="float:right;text-align:center;line-height:50px;" ng-show="lovedone.selected_by_me" ng-click="open_activepatients()">Active</span>
+                
+				<a ng-click="show_patient_dialog({{lovedone}})"  href="javascript:;" class="name" >{{lovedone.name}} </a>
+
+                <span>{{lovedone.date_of_birth}}</span>
+                
+			</li>
+		</ul>
+		<div style="height: 50px;"></div>
+		<div class="clearfix"></div>
+	</div>
+</div>
+
+<div class="patient-dialog-overlay">
+	<div class="patient-dialog">
+		<a ng-click="close_patient_dialog()" class="btn-close">
+			<i class="glyphicon glyphicon-remove"></i>
+		</a>
+		<p>&nbsp;</p>
+		<div ng-if="!is_already_taken(selected_lovedone)">
+			<h4 class="text-center">
+				{{selected_lovedone.name+" "+selected_lovedone.middle_initial}}
+				<br><small>({{selected_lovedone.date_of_birth}})</small>
+			</h4>
+			<p>&nbsp;</p>
+			<h4 align="center"style="line-height: 30px; background-color: black; font-weight: normal">
+				Do you want to activate?
+			</h4>
+
+			<p class="text-center" style="background-color: black;">
+				<button class="btn btn-success" ng-click="set_as_active(selected_lovedone)">
+					Yes
+				</button>
+				&nbsp;&nbsp;&nbsp;&nbsp;
+				<button class="btn btn-danger" ng-click="close_patient_dialog()">
+					&nbsp;No&nbsp;
+				</button>
+			</p>
+		</div>
+		<div ng-if="is_already_taken(selected_lovedone)" class="text-center">
+			<h4 align="center"style="line-height: 30px; margin-bottom: 20px; background-color: black; font-weight: normal">
+				<span ng-if="is_taken_by_me(selected_lovedone)">Loved One Already Active</span>
+				<span ng-if="!is_taken_by_me(selected_lovedone)">Loved One Already Active</span>
+				<br>
+				{{selected_lovedone.name+" "+selected_lovedone.middle_initial}}
+				<br> <small>({{selected_lovedone.date_of_birth}})</small>
+			</h4>
+			<button class="btn btn-danger" ng-click="close_patient_dialog()">
+				&nbsp;OK&nbsp;
+			</button>
+		</div>
+	</div>
+
+	
+</div>
+    
+

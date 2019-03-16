@@ -1,0 +1,37 @@
+<!-- Register Page -->
+<div id="sign-register" class="custom-sign-area">
+	<div class="ui-content">
+	<figure class="custom-sign-img-logo">
+	    <img src="images/logo.png" alt="image" style="max-width:240px;">
+	</figure>
+	<div class="col-xs-10 col-xs-offset-1">
+	<form name="signRegisterForm" novalidate>
+		<div class="custom-center custom-sign-report">{{ registerReport }}</div>
+		<div class="custom-space-v10"></div>
+		<div class="custom-sign-register-textbox-area custom-icon-full-name">
+			<input type="text" id="sign-register-fullname" placeholder="Full Name" ng-model="registerFullName" required ng-minlength="3" ng-maxlength="16" ng-pattern="/^[a-z]([0-9a-z_\s])+$/i">
+		</div>
+		<div class="custom-sign-register-textbox-area custom-icon-company">
+			<input type="text" id="sign-register-company" placeholder="Company Name" ng-model="registerCompany" required ng-minlength="2" ng-maxlength="50">
+		</div>
+		<div class="custom-sign-register-textbox-area custom-icon-email">
+			<input type="email" id="sign-register-email" placeholder="Email" ng-model="registerEmail" required>
+		</div>
+		<div class="custom-sign-register-textbox-area custom-icon-password">
+	    	<input type="password" id="sign-register-password" placeholder="Password" ng-model="registerPassword" required ng-minlength="5" ng-maxlength="16" ng-pattern="/^([0-9a-zA-Z])+$/">
+		</div>
+		<div class="custom-sign-register-textbox-area custom-icon-password">
+	    	<input type="password" id="sign-register-confirm" placeholder="Confirm" ng-model="registerConfirm" required ng-minlength="5" ng-maxlength="16" ng-pattern="/^([0-9a-zA-Z])+$/" ng-match="registerPassword">
+		</div>
+		<div class="custom-space-v5"></div>
+		<div class="custom-sign-row custom-sign-register-button-area">
+			<a class="ui-btn" ng-disabled="signRegisterForm.$invalid" ng-click="onRegisterSubmit(signRegisterForm.$valid)">Register</a>
+		</div>
+		<div class="custom-space-v10"></div>
+		<div class="custom-sign-row">
+			<a href="#/" ng-click="onReturnLogin();" class="custom-link-sign">Log In</a>
+		</div>
+	</form>
+	</div>
+	</div><!-- /content -->
+</div><!-- /page -->

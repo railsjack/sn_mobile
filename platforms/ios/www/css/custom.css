@@ -1,0 +1,17 @@
+@CHARSET "UTF-8";
+
+.shift-not-started {
+	width:100%;
+	background-color:#F30;
+	line-height::20px;
+	color:#FFF;
+	text-align:center;
+}
+
+.shift-started {
+	width:100%;
+	background-color:#093;
+	line-height::20px;
+	color:#FFF;
+	text-align:center;
+}

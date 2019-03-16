@@ -1,0 +1,338 @@
+@CHARSET "UTF-8";
+
+body{
+	background: url(../images/bg.png);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  color: black;
+}
+
+input{ color: black;}
+
+.scrollable-content{
+	padding-top: 30px; padding-bottom: 100px; -webkit-transform: translate3d(0,0,0);
+	transform: translate3d(0, 0, 0);}
+
+
+.btn-success, .btn-success:hover, .btn-success:visited, .btn-success:active {
+  color: #fff;
+  background-color: #75b71b;
+  border-color: #75b71b;
+}
+
+a:hover, a:visited, a:active{
+  text-decoration: none;
+}
+
+.section{
+	background-color: transparent;
+}
+
+.navbar{
+  background-color: black;
+  border-top: solid 1px #282727;
+  display: table;
+  width: 100%;
+}
+
+.navbar ul.menu-list{
+  list-style: none;
+  padding: 0; margin: 0;
+  display: table-row;
+}
+
+.navbar ul.menu-list li{ 
+  width: 33.333333%;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 11pt;
+  display: table-cell;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.navbar ul.menu-list li a{
+  display: block;
+  padding: 5px 10px;
+  color: white;
+}
+
+
+#sign-login{
+ }
+  #sign-login .logo-img{
+  	margin: 0 auto;
+  }
+  #sign-login .title{
+  	color: lightgray;
+  	line-height: 100px;
+  }
+  #sign-login #sign-login-email{ 
+  }
+  #sign-login .username{
+    margin-top: 30px;
+  }
+	  #sign-login .login-report{
+	  	margin-top: 10px;
+	  	color: white;
+	  }
+	  #sign-login .username input{
+	    text-indent: 30px;
+	    background: url(../images/login/username-icon.png) no-repeat 10px center white;
+	    background-size: 30px 30px;
+	  }
+  #sign-login .username, #sign-login .password{ 
+    height: 50px;
+  }
+	  #sign-login .password input{
+	    text-indent: 30px;
+	    background: url(../images/login/password-icon.png) no-repeat 13px center white;
+	    background-size: 26px 30px;
+	  }
+  #sign-login .btnlogin{
+  	margin-top: 10px;
+    height: 50px;
+  }
+  #sign-login .btnlogin .btn:hover, #sign-login .btnlogin .btn:visited{
+  	background-color: #75b71b;
+  }
+  #sign-login .btncancel{
+    height: 50px;
+  }
+  #sign-login .btncancel .btn{
+    border-color: white;
+    background: transparent!important;
+  }
+
+  
+.patients-navbar{
+	border: none;
+	height: 100px;
+    line-height: 100px;
+}
+.patients-navbar .title{ 
+	line-height: 30px;
+	font-size: 20px;
+	color: lightgray; 
+
+}
+.patients-navbar .menu-icon img{
+		height: 22px;
+}
+.patients-navbar .menu-icon a{
+    display: block;
+}
+.patients-navbar .search{
+	background: url(../images/search-icon.png) no-repeat left 10px center white;
+	text-indent: 25px;
+	background-size: 20px 20px;
+	margin-top:55px;
+	
+
+}
+
+.patients-list{
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.patients-list li{
+	display: block;
+	border-right: none;
+	border-left: none;
+	height: 80px;
+	line-height: 30px;
+	
+	background-size: 20px 40px;
+	padding: 15px;
+}
+
+.patients-list li.selected-by-me{
+  background: url(../images/flyout-icon-selected_by_me.png?_=1) no-repeat right 20px center;
+}
+
+.patients-list li.selected-by-other{
+  background: url(../images/flyout-icon-selected_by_other.png?_=2) no-repeat right 20px center;
+}
+
+.patients-list li a{
+  color: white;
+  font-size: 20px;
+  display: block;
+}
+.patients-list li span{
+  font-size: 10.5pt;
+  color: #78b823;
+}
+
+.patients-list li ~ li{
+	border-top: solid 1px #282727;
+}
+
+.patient-dialog-overlay{
+  position: absolute; z-index: 100000;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+.active-loved-back {
+	
+	margin-left:15px;
+	margin-bottom:15px;
+}
+.patient-dialog{
+  position: relative;
+  width: calc(100% - 50px); 
+  height: 220px; 
+  margin: 100px auto;
+  border: solid 1px #666;
+  border-radius: 5px;
+  background-color: rgba(0,0,0,1);
+}
+.logout-confirmation-dialog-overlay{
+	position: absolute; z-index: 100000;
+  width: 100%;
+  height: 100%;
+  display:none;
+ }
+ .lotout-active-patients-dialog-overlay {
+  position: absolute; z-index: 100000;
+  width: 100%;
+  height: 100%;
+  display:none;
+ }
+.logout-dialog{
+	 position: relative;
+  width: calc(100% - 50px); 
+  height: 120px; 
+  margin: 100px auto;
+  border: solid 1px #666;
+  border-radius: 5px;
+  background-color: rgba(0,0,0,1);
+}
+
+.logout-inactive-dialog{
+	 position: relative;
+  width: calc(100% - 50px); 
+  height: 160px; 
+  margin: 100px auto;
+  border: solid 1px #666;
+  border-radius: 5px;
+  background-color: rgba(0,0,0,1);
+}
+
+.end-shift-confirmation-dialog-overlay{
+  position: absolute; z-index: 100000;
+  width: 100%;
+  height: 100%;
+  display:none;
+ }
+ .end-shift-dialog{
+  position: relative;
+  width: calc(100% - 50px); 
+  height: 120px; 
+  margin: 100px auto;
+  border: solid 1px #666;
+  border-radius: 5px;
+  background-color: rgba(0,0,0,1);
+}
+
+.end-shift-confirmation-dialog-overlay-2{
+  position: absolute; z-index: 100000;
+  width: 100%;
+  height: 100%;
+  display:none;
+ }
+.end-shift-dialog-2{
+  position: relative;
+  width: calc(100% - 100px); 
+  height: 120px; 
+  margin: 100px auto;
+  border: solid 1px #666;
+  border-radius: 5px;
+  background-color: rgba(0,0,0,1);
+}
+ 
+
+.patient-dialog a.btn-close{
+  font-size: 20px; color: white; display: block;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+}
+
+.flyout-menu{
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0, .1);
+}
+.flyout-menu .menu-items{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.flyout-menu .menu-items li{
+  font-size: 18pt;
+  height: 50px;
+  line-height: 50px;
+  border-top: solid 1px white;
+  border-bottom: solid 1px white;
+}
+
+.flyout-menu .menu-items li ~ li{
+  border-top: none;
+}
+
+
+.allpatients{
+  background-color: rgba(0,0,0,0.3);
+}
+
+.allpatients .searchBar{
+  padding: 5px 25px;
+  position: fixed;
+  z-index: 10000;
+  top: 40px;
+}
+
+.activepatients{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(0,0,0,0.3);
+  padding-top: 70px;
+}
+
+.loading{
+   width: 100%;
+   height: 100%;
+   background-color: rgba(255,255,255,0.1);
+   position: absolute;
+   z-index: 100000000;
+   background-image: url(../images/loading.gif?_=2);
+   background-size: 40px 40px;
+   background-repeat: no-repeat;
+   background-position: center center;
+   top: 0;
+}
+
+.inactivate {
+	color:#F00;
+	font-size:16px;
+	margin-left:3px;
+	margin-right:3px;	
+	
+}
+
+
+
+
+
+

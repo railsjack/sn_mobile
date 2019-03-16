@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="white">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Safety Notice</title>
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap-switch.min.css">
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <link rel="stylesheet" href="css/jquery.mobile-1.4.3.min.css">
+        <!-- Angular Mobile UI CSS -->
+        <link rel="stylesheet" href="css/mobile-angular-ui-hover.min.css" />
+        <link rel="stylesheet" href="css/mobile-angular-ui-base.min.css" />
+        <link rel="stylesheet" href="css/mobile-angular-ui-desktop.min.css" />
+        <!-- Angular Transitions -->
+        <link rel="stylesheet" href="css/angular-transitions/view/animations.1.1.5.css">
+        <link rel="stylesheet" href="css/angular-transitions/view/animations.1.2.0.css">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="css/style.css?_=2">
+        <link rel="stylesheet" href="css/custom.css">
+        
+
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/moment.min.js"></script>
+
+        <!--script type="text/javascript" src="js/jquery.mobile-1.4.3.min.js"></script-->
+        <script type="text/javascript" src="js/angular.min.js"></script>
+        <script type="text/javascript" src="js/angular-route.min.js"></script>
+        <script type="text/javascript" src="js/angular-animate.min.js"></script>
+        <script type="text/javascript" src="js/angular-touch.min.js"></script>
+        <script type="text/javascript" src="js/mobile-angular-ui.min.js"></script>
+        <script type="text/javascript" src="js/ui-bootstrap-tpls-0.11.0.min.js"></script>
+        <script type="text/javascript" src="js/moment-with-locales.min.js"></script>
+        
+        <!-- Custom Script -->
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript" src="cordova_plugins.js"></script>
+        <script type="text/javascript" src="js/functions.js"></script>
+
+        <script type="text/javascript" src="scripts/app.js?_=5"></script>
+        <script type="text/javascript" src="scripts/routing.js?_=5"></script>
+        <script type="text/javascript" src="scripts/services/api.js?_=5"></script>
+
+        <script type="text/javascript" src="scripts/controllers/login.js?_=2"></script>
+        <script type="text/javascript" src="scripts/controllers/flyout.js?_=5"></script>
+        <script type="text/javascript" src="scripts/controllers/register.js?_=5"></script>
+        <script type="text/javascript" src="scripts/controllers/allpatients.js?_=7"></script>
+        <script type="text/javascript" src="scripts/controllers/activepatients.js?_=6"></script>
+        <script type="text/javascript" src="scripts/controllers/settings.js?_=5"></script>
+        <script src="js/index.js"></script>
+        <script type="text/javascript" charset="utf-8" src="SQLitePlugin.js"></script>
+    </head>
+    <body  ng-controller="appController" onload="onLoad()" id="main_body">
+
+		<div class="shift-{{user.shift_status ? 'started' : 'not-started'}}" ng-click="toggleShiftStatus()" nd-model="user.shift_status" >{{user.shift_status ? 'End your shift' : 'Start your shift'}}</div>
+
+        <nav ng-if="isLoggedIn" role="navigation" ng-show="!flyoutMenu" class="patients-navbar row navbar navbar-default navbar-fixed-top " >
+        
+        	
+            
+            <div class="col-xs-12 text-center" ng-show="!flyoutMenu">
+                <span class='title'>{{menuTitle}}</span> 
+            </div>
+            <div class="clearfix"></div>
+        </nav>
+
+        <div ng-view class="generalContent"></div>
+        
+        <div class="logout-confirmation-dialog-overlay"  >
+            <div class="logout-dialog">
+                  <div class="text-center">
+                    <h4 align="center"style="line-height: 30px; margin-bottom: 20px; background-color: black; font-weight: normal">
+                    Are you sure you want to logout?
+                    </h4>
+                    <button class="btn btn-success" ng-click="logout()">
+                        Logout
+                    </button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-danger" ng-click="hide_logout_popup()">
+                        &nbsp;No&nbsp;
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="end-shift-confirmation-dialog-overlay"  >
+            <div class="end-shift-dialog">
+                  <div class="text-center">
+                    <h4 align="center"style="line-height: 30px; margin-bottom: 20px; background-color: black; font-weight: normal">
+                    Is this the last appointment for your shift? </h4>
+                    <button class="btn btn-success" ng-click="hide_end_shift_confirmation_popup()">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-danger" ng-click="endShift()">
+                        YES
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="end-shift-confirmation-dialog-overlay-2"  >
+            <div class="end-shift-dialog-2">
+                  <div class="text-center">
+                    <h4 align="center"style="line-height: 30px; margin-bottom: 20px; background-color: black; font-weight: normal">
+                    Are you sure you want to end this shift? </h4>
+                    <button class="btn btn-success" ng-click="hide_end_shift_confirmation_popup_2()">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button class="btn btn-danger" ng-click="endShift2()">
+                        YES
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="lotout-active-patients-dialog-overlay"  >
+            <div class="logout-inactive-dialog">
+                  <div class="text-center">
+                    <h4 align="center"style="line-height: 30px; margin-bottom: 20px; background-color: black; font-weight: normal">
+                    {{user.active_lovedones.length === 1 ? "There is 1 Active Loved One.  Please complete the encounter before logging out." : 'There are ' + user.active_lovedones.length + ' Active Loved Ones.  Please complete the encounter before logging out.'}}
+                    	
+                    </h4>
+                    <button class="btn btn-danger" ng-click="hide_logout_active_patients_popup()">
+                        &nbsp;OK&nbsp;
+                    </button>
+                </div>
+            </div>
+        </div>
+<!--<div class="progress-bar-normal" style="background-color:#F00" >Some message goes here...</div> -->
+        <nav ng-if="isLoggedIn" class="navbar navbar-default navbar-fixed-bottom">
+            <ul class="menu-list">
+                <li><a ng-click="open_allpatients()">ALL <br>LOVED ONES</a></li>
+                <li><a ng-click="open_activepatients()">ACTIVE<br>LOVED ONES</a></li>
+                <li><a ng-click="show_logout_popup()">LOGOUT</a></li>
+            </ul>
+        </nav>
+        <!--<textarea id="geo" style="display: none; position: fixed; bottom: 0; z-index: 1000; width: 100%; height: 100px; border: solid 1px #fff; background-color: transparent;">lat=100, lng=100</textarea>-->
+        <div class="loading" style="display: none;"></div>
+        <div id='btn-refresh' ng-click="init()"></div>
+        <script>
+            function onLoad(){
+				document.addEventListener("deviceready",onDeviceReady, true);
+	        }
+			
+			function onDeviceReady(){
+								
+				angular.bootstrap(document, ['snApp']);
+				
+				enablePlugins();
+				
+				startDataRefreshLoop();
+	
+        		document.addEventListener("backbutton", function () { 
+					if (confirm('Are you sure you want to exit app?')) { 
+						 navigator.app.exitApp();
+						 return;
+					}	
+			 		}, true); 
+     		}
+        </script>
+    </body>
+</html>
+
