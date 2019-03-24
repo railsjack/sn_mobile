@@ -19,11 +19,12 @@
 
 // GENERATED FILE! DO NOT EDIT!
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 buildscript {
     repositories {
         mavenCentral()
+        maven { url "http://jcenter.bintray.com"}
     }
 
     // Switch the Android Gradle plugin version requirement depending on the
@@ -32,7 +33,7 @@ buildscript {
     // and https://issues.apache.org/jira/browse/CB-8143
     if (gradle.gradleVersion >= "2.2") {
         dependencies {
-            classpath 'com.android.tools.build:gradle:1.0.0+'
+            classpath 'com.android.tools.build:gradle:2.2.3'
         }
     } else if (gradle.gradleVersion >= "2.1") {
         dependencies {
@@ -48,10 +49,11 @@ buildscript {
 // Allow plugins to declare Maven dependencies via build-extras.gradle.
 repositories {
     mavenCentral()
+    maven { url "http://jcenter.bintray.com"}
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.2.1'
+    gradleVersion = '2.2'
 }
 
 // Configuration properties. Set these via environment variables, build-extras.gradle, or gradle.properties.
@@ -150,20 +152,14 @@ android {
             assets.srcDirs = ['assets']
         }
     }
-
     def versionCodeOverride = cdvVersionCode ? Integer.parseInt(cdvVersionCode) : null
     def minSdkVersionOverride = cdvMinSdkVersion ? Integer.parseInt(cdvMinSdkVersion) : null
-
     defaultConfig {
         versionCode versionCodeOverride ?: Integer.parseInt("" + privateHelpers.extractIntFromManifest("versionCode") + "0")
         if (minSdkVersionOverride != null) {
             minSdkVersion minSdkVersionOverride
         }
     }
-
-    compileSdkVersion cdvCompileSdkVersion
-    buildToolsVersion cdvBuildToolsVersion
-
     if (Boolean.valueOf(cdvBuildMultipleApks)) {
         productFlavors {
             armv7 {
@@ -185,28 +181,27 @@ android {
             }
         }
     } else if (!versionCodeOverride) {
-      def minSdkVersion = minSdkVersionOverride ?: privateHelpers.extractIntFromManifest("minSdkVersion")
-      // Vary versionCode by the two most common API levels:
-      // 14 is ICS, which is the lowest API level for many apps.
-      // 20 is Lollipop, which is the lowest API level for the updatable system webview.
-      if (minSdkVersion >= 20) {
-        defaultConfig.versionCode += 9
-      } else if (minSdkVersion >= 14) {
-        defaultConfig.versionCode += 8
-      }
+        def minSdkVersion = minSdkVersionOverride ?: privateHelpers.extractIntFromManifest("minSdkVersion")
+        // Vary versionCode by the two most common API levels:
+        // 14 is ICS, which is the lowest API level for many apps.
+        // 20 is Lollipop, which is the lowest API level for the updatable system webview.
+        if (minSdkVersion >= 20) {
+            defaultConfig.versionCode += 9
+        } else if (minSdkVersion >= 14) {
+            defaultConfig.versionCode += 8
+        }
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_6
         targetCompatibility JavaVersion.VERSION_1_6
     }
-
     if (cdvReleaseSigningPropertiesFile) {
         signingConfigs {
             release {
                 // These must be set or Gradle will complain (even if they are overridden).
                 keyAlias = ""
-                keyPassword = "__unset" // And these must be set to non-empty in order to have the signing step added to the task graph.
+                keyPassword = "__unset"
+                // And these must be set to non-empty in order to have the signing step added to the task graph.
                 storeFile = null
                 storePassword = "__unset"
             }
@@ -221,12 +216,15 @@ android {
     if (cdvDebugSigningPropertiesFile) {
         addSigningProps(cdvDebugSigningPropertiesFile, signingConfigs.debug)
     }
+    compileSdkVersion 21
+    buildToolsVersion '21'
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile fileTree(include: '*.jar', dir: 'libs')
     // SUB-PROJECT DEPENDENCIES START
     // SUB-PROJECT DEPENDENCIES END
+    compile project(':CordovaLib')
 }
 
 def promptForReleaseKeyPassword() {

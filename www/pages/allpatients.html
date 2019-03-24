@@ -3,23 +3,36 @@
 
 <!-- Top Navs -->
 	
-<div class="scrollable custom-main-general-content allpatients" style="padding-top: 65px;">
+<div class="scrollable custom-main-general-content allpatients" style="padding-top: 90px;">
 	<div class="col-xs-12 searchBar">
-	    <input class="form-control" placeholder="Search" ng-model="search.name" 
-	    autocomplete="off" autocorrect="off" spellcheck="false" type="text" />
-        
+		<input class="form-control" placeholder="Search" ng-model="search.name" 
+		autocomplete="off" autocorrect="off" spellcheck="false" type="text" />
+		<div style="text-align: center;" >
+			<a class="btn btn-default btn-sm btn-small"
+				style="margin: 0px auto; margin-top: 30px; font-size: 18px; 
+							color:#FF0; background-color: transparent; border-color: white;"
+				ng-show="user.active_lovedones.length != 0" 
+				ng-click="open_activepatients()">Next &gt;</a>
+		</div>
 	</div>
-    
+	 	
 	<div class="scrollable-content section">
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
 		<ul class='patients-list'>
 			<li data-ng-repeat="lovedone in user.lovedones | filter: search" >
-            	<!--<span class="inactivate" style="float:right;text-align:center;line-height:50px;" ng-show="lovedone.selected_by_me" ng-click="open_activepatients()">X</span> -->
-				<span style="float:right;text-align:center;line-height:50px;" ng-show="lovedone.selected_by_me" ng-click="open_activepatients()">Active</span>
-                
-				<a ng-click="show_patient_dialog({{lovedone}})"  href="javascript:;" class="name" >{{lovedone.name}} </a>
+				<span style="float:right;line-height:50px; color:#F00; margin-right:5px; " ng-show="(lovedone.selected_by_me && !(typeof(lovedone.trip)=='undefined' || (typeof(lovedone.trip)!='undefined' && lovedone.trip.status=='started')) && (lovedone.selected_by_me && !(typeof(lovedone.trip_status) != 'undefined'	&& lovedone.trip_status == 'started'))	) " ng-click="unset_as_active(lovedone)">X</span>
 
-                <span>{{lovedone.date_of_birth}}</span>
-                
+				<span style="float:right;line-height:50px; color:#093; margin-right:35px; " 
+				ng-show="lovedone.selected_by_me" ng-click="open_activepatients()">Activated</span>
+
+				<button ng-show="!lovedone.selected_by_me"
+						ng-click="show_patient_dialog({{lovedone}})"	class="btn btn-success pull-right" >
+					Activate
+				</button>
+
+				<a class="name" > {{ lovedone.name | limitTo: 15 }}{{lovedone.name.length > 15 ? '...' : ''}} </a>
+				<span style="color:#FFF; ">{{lovedone.date_of_birth}}</span>
 			</li>
 		</ul>
 		<div style="height: 50px;"></div>
@@ -34,16 +47,16 @@
 		</a>
 		<p>&nbsp;</p>
 		<div ng-if="!is_already_taken(selected_lovedone)">
-			<h4 class="text-center">
+			<h4 class="text-center" style="color:#000;">
 				{{selected_lovedone.name+" "+selected_lovedone.middle_initial}}
 				<br><small>({{selected_lovedone.date_of_birth}})</small>
 			</h4>
 			<p>&nbsp;</p>
-			<h4 align="center"style="line-height: 30px; background-color: black; font-weight: normal">
+			<h4 align="center"style="line-height: 30px;font-weight: normal;">
 				Do you want to activate?
 			</h4>
 
-			<p class="text-center" style="background-color: black;">
+			<p class="text-center" >
 				<button class="btn btn-success" ng-click="set_as_active(selected_lovedone)">
 					Yes
 				</button>
@@ -54,7 +67,7 @@
 			</p>
 		</div>
 		<div ng-if="is_already_taken(selected_lovedone)" class="text-center">
-			<h4 align="center"style="line-height: 30px; margin-bottom: 20px; background-color: black; font-weight: normal">
+			<h4 align="center"style="line-height: 30px; margin-bottom: 20px; font-weight: normal; ">
 				<span ng-if="is_taken_by_me(selected_lovedone)">Loved One Already Active</span>
 				<span ng-if="!is_taken_by_me(selected_lovedone)">Loved One Already Active</span>
 				<br>
@@ -69,5 +82,5 @@
 
 	
 </div>
-    
+		
 

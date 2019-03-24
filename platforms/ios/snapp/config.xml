@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="com.nahrae.snapp" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+<widget id="com.nahrae.safetynotice" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
     <preference name="AllowInlineMediaPlayback" value="false" />
     <preference name="BackupWebStorage" value="cloud" />
     <preference name="DisallowOverscroll" value="false" />
@@ -20,9 +20,6 @@
     <feature name="Device">
         <param name="ios-package" value="CDVDevice" />
     </feature>
-    <feature name="Geolocation">
-        <param name="ios-package" value="CDVLocation" />
-    </feature>
     <feature name="BackgroundMode">
         <param name="ios-package" value="APPBackgroundMode" />
     </feature>
@@ -35,6 +32,48 @@
     <feature name="SpinnerDialog">
         <param name="ios-package" value="CDVSpinnerDialog" />
     </feature>
+    <feature name="PushPlugin">
+        <param name="ios-package" value="PushPlugin" />
+    </feature>
+    <feature name="File">
+        <param name="ios-package" value="CDVFile" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="Media">
+        <param name="ios-package" value="CDVSound" />
+    </feature>
+    <feature name="SplashScreen">
+        <param name="ios-package" value="CDVSplashScreen" />
+        <param name="onload" value="true" />
+    </feature>
+    <feature name="Geolocation">
+        <param name="ios-package" value="CDVLocation" />
+    </feature>
+    <feature name="CheckGPS">
+        <param name="ios-package" value="CheckGPS" />
+    </feature>
+    <feature name="Notification">
+        <param name="ios-package" value="CDVNotification" />
+    </feature>
+    <feature name="BackgroundGeoLocation">
+        <param name="ios-package" value="CDVBackgroundGeoLocation" />
+    </feature>
+    <icon height="180" src="www/res/icon/ios/icon-152.png" width="180" />
+    <icon height="60" src="www/res/icon/ios/icon-60.png" width="60" />
+    <icon height="120" src="www/res/icon/ios/icon-120.png" width="120" />
+    <icon height="76" src="www/res/icon/ios/icon-76.png" width="76" />
+    <icon height="152" src="www/res/icon/ios/icon-152.png" width="152" />
+    <icon height="40" src="www/res/icon/ios/icon-40.png" width="40" />
+    <icon height="80" src="www/res/icon/ios/icon-80.png" width="80" />
+    <icon height="57" src="www/res/icon/ios/icon.png" width="57" />
+    <icon height="114" src="www/res/icon/ios/icon-114.png" width="114" />
+    <icon height="72" src="www/res/icon/ios/icon-72.png" width="72" />
+    <icon height="144" src="www/res/icon/ios/icon-144.png" width="144" />
+    <icon height="29" src="www/res/icon/ios/icon-small.png" width="29" />
+    <icon height="58" src="www/res/icon/ios/icon-152.png" width="58" />
+    <icon height="50" src="www/res/icon/ios/icon-50.png" width="50" />
+    <icon height="100" src="www/res/icon/ios/icon-100.png" width="100" />
+    <splash height="480" src="www/res/splash/android_640x960.png" width="320" />
     <name>snapp</name>
     <description>
         A sample Apache Cordova application that responds to the deviceready event.
@@ -43,5 +82,9 @@
         Apache Cordova Team
     </author>
     <content src="index.html" />
+    <preference name="SplashScreenDelay" value="3000" />
+    <preference name="SplashMaintainAspectRatio" value="false" />
+    <preference name="SplashScreen" value="android_640x960" />
+    <preference name="DisallowOverscroll" value="true" />
     <access origin="*" />
 </widget>

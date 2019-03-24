@@ -2,24 +2,34 @@ wcsLocalStorage.set('isLoggedIn', !!wcsLocalStorage.get('isLoggedIn'));
 
 var snApp = angular.module('snApp', ['ngRoute', 'ngAnimate', 'ngTouch', 'mobile-angular-ui', 'ui.bootstrap'] );
 
-var gLat = 50, gLng = 50;
+var pushNotification;
+
+var gLat = 0, gLng = 0;
+
+var gLat1 = 25.925937, gLng1 = -80.293579;
+var fLat = 31.554606, fLng = 74.357158;
+var nLat = 31.462199, nLng = 74.294221;
 
 var doRefresh = true;
 var isDBInitialized = false;
 var shiftStatusUpdated = false;
+var isListeningLocation = false;
 
 var db;
 
-var DATA_REFRESH_INTERVAL = 3000;
+var DATA_REFRESH_INTERVAL = 60*1000*2;	// 2 minutes
+var LOCATION_UPDATE_INTERVAL = 1000 * 10;	// 10 seconds
 var MAX_INTERVAL_LOVED_ONES = 3000;
 var mSinceLastLovedOnesDBUpdate = 0;
 
+var mSound;
+
+var bgGeo;
 
 
- // var apiURL = 'http://172.16.1.214:3000/api';
   // var apiURL = 'http://safetynotice.com:3002/api';
-   //var apiURL = 'http://safetynotice.vteamslabs.com/api';
-   var apiURL = 'http://10.28.84.73:3000/api';
+      //var apiURL = 'http://safetynotice.vteamslabs.com/api';
+      var apiURL = 'http://10.28.84.73:3000/api';
   
 	snApp.config(['$httpProvider', function($httpProvider) {
             $httpProvider.defaults.useXDomain = true;
@@ -31,60 +41,396 @@ var mSinceLastLovedOnesDBUpdate = 0;
                 lovedones: [],
                 active_lovedones: [],
 				shift_status:false,
+				shift_date:'',
             };
-						
+			
 			$rootScope.locationListenerId = 0;
 
-    		$rootScope.isLoggedIn = wcsLocalStorage.get('currentUser')!=null && wcsLocalStorage.get('currentUser')!="";
+//    		$rootScope.isLoggedIn = wcsLocalStorage.get('currentUser')!=null && wcsLocalStorage.get('currentUser')!="";
+			
+	   		$rootScope.isLoggedIn = wcsLocalStorage.get('isLoggedIn');
             
-            $rootScope.is_taken_by_me = function(lovedone){
+			if(device.platform.toLowerCase() === "android") {
+				mSound = new Media('file:///android_asset/www/sound/notify.mp3');
+			} 
+			else {
+				mSound = new Media('sound/notify.mp3');
+			}
+			
+            $rootScope.is_taken_by_me = function(lovedone){ 
               var taken = where($rootScope.user.active_lovedones,'id', lovedone.id);
               if(!taken) return false;
               return taken.selected_by_me;
             };
+			
             $rootScope.is_already_taken = function(lovedone){
               if(lovedone==null) return false;
-              return where($rootScope.user.active_lovedones, 'id', lovedone.id);
+			  return lovedone.selected;
+              //return where($rootScope.user.active_lovedones, 'id', lovedone.id);
             };
 			
-			$rootScope.getShiftStatus = function() {
+			$rootScope.endEncounterViaPush = function(selected_push) {
+				$rootScope.hideElement('.feature-8-dialog-overlay');
+				
+				var lovedone = {};
+				lovedone['id'] = selected_push.lovedone_id;
+				lovedone['trip'] = {};
+				lovedone.trip['id'] = selected_push.trip_id;
 				
 				if(!isConnected()) {
+					return;
+				}
+				
+				var pushPromise = Api.post(apiURL + '/employee/notification_response?trip_id=' + selected_push.trip_id);
+				pushPromise.then(function(data) {
+
+					if(data.status) {
+						$rootScope.unselect_patient(lovedone);
+					}
+					
+				});
+	
+			}
+			
+			$rootScope.snoozPushForTrip = function(selected_push) {
+				$rootScope.hideElement('.feature-8-dialog-overlay');
+				
+				if(!isConnected()) {
+					return;
+				}
+				
+				var pushPromise = Api.post(apiURL + '/employee/notification_response?trip_id=' + selected_push.trip_id);
+				pushPromise.then(function(data) {
+					
+				});
+			}
+			
+			$rootScope.handlePush = function(e) {
+				
+				if(!$rootScope.isLoggedIn) {
+					return;
+				}
+				
+				if(e.event == 'registered') {
+					
+					$rootScope.sendPushIdToServer(e);
+					
+				} else if(e.event == 'message') {
+					
+					//alert('Push Notification::> ' + JSON.stringify(e));
+					
+					var pushMsg = toPushMsg(e);
+					if(pushMsg['type'] == 8) {
+						$rootScope.selected_push = pushMsg;
+						
+						$rootScope.hide_logout_popup();
+						$rootScope.hide_logout_active_patients_popup();
+						$rootScope.hide_end_shift_confirmation_popup();
+						$rootScope.hide_end_shift_confirmation_popup_2();
+						$rootScope.hide_no_shift_active_patients_popup();
+						$rootScope.hide_shift_not_ended_popup();
+						$rootScope.hide_end_shift_with_active_lovedones_popup();
+						
+						$rootScope.showElement('.feature-8-dialog-overlay');
+						
+						mSound.play();
+						
+					} else if(pushMsg['type'] == 9) {
+						$rootScope.init();
+					}
+					
+				}
+			}
+			
+			$rootScope.sendPushIdToServer = function(e) {
+				if ( e.regid.length <= 0 ) {
+					return;
+				}
+				
+				//var savedRegId = wcsLocalStorage.get('reg_id');
+				
+				//if( typeof(savedRegId) == 'undefined' || savedRegId == '' || savedRegId != e.regid ) {
+					gLoading = false;
+					var pushPromise = Api.post(apiURL + '/employee/device_registration?employee_id=' + $rootScope.user.id + '&reg_id=' + e.regid + '&reg_type=' + device.platform);
+					
+					pushPromise.then(function(data) {
+
+						if(typeof(data.status) != 'undefined' && data.status == 1) {
+							wcsLocalStorage.set('reg_id', e.regid);
+						}
+					});
+					
+				//} else {
+					// do nothing. We already have sent this id to server.
+					//alert('No need to register');
+				//}
+
+			}
+			
+			$rootScope.isSafeToLeave = function() {
+				
+				for(var i in $rootScope.user.active_lovedones) {
+					if($rootScope.user.active_lovedones[i].selected && $rootScope.user.active_lovedones[i].selected_by_me) {
+						return false;
+					}
+				}
+				return true;
+				
+			}
+			
+			$rootScope.forceShiftStatus = function() {		// popup will show up if user has not started his shift and try to do some encounter.
+				if($rootScope.user.shift_status) {
+					return true;
+				} else {
+					$rootScope.show_no_shift_active_patients_popup();
+					return false;
+				}
+			}
+			
+			$rootScope.setShiftDate = function(date) {
+				if(typeof(date) == 'undefined' || date == '') {
+					$rootScope.user.shift_date = 'xxxx/xx/xx';
+					wcsLocalStorage.set('shift_date', $rootScope.user.shift_date);
+				} else {
+					$rootScope.user.shift_date = date;
+					wcsLocalStorage.set('shift_date', date);
+				}
+			}
+			
+			$rootScope.getShiftDate = function() {
+				if($rootScope.user.shift_date == null || typeof($rootScope.user.shift_date) == 'undefined' || $rootScope.user.shift_date == 'null') {
+					return '';
+				} else {
+					return $rootScope.user.shift_date;
+				}
+			}
+
+			$rootScope.getShiftStatus = function() {
+				$rootScope.user.shift_status = wcsLocalStorage.get('shift_status') == 0 ? false : true;
+				if(!isConnected()) {
+					
 					var shift_status = wcsLocalStorage.get('shift_status');
 					if(shift_status == 1) {
-						$rootScope.user.shift_status = true;
+						$rootScope.setShiftDate(wcsLocalStorage.get('shift_date'));
 					} else {
-						$rootScope.user.shift_status = false;
+						$rootScope.setShiftDate(wcsLocalStorage.get('shift_date'));
 					}
+					$rootScope.user.shift_status = wcsLocalStorage.get('shift_status') == 0 ? false : true;
 					shiftStatusUpdated = true;
+					
 				}
 				else {
+					gLoading = false;
 					var shiftPromise = Api.post(apiURL + '/employee/activity?employee_id=' + +$rootScope.user.id);
 					shiftPromise.then(function(data) {
-						//alert(JSON.stringify(data));
-						if(data.activity == 'shift_started') {
-							$rootScope.user.shift_status = true;
-							wcsLocalStorage.set('shift_status','1');
-						} else {
+						
+						// alert(JSON.stringify(data));
+						
+						if( typeof(data) == 'undefined' || data == '' || typeof(data.activity) == 'undefined') {
+							
 							$rootScope.user.shift_status = false;
 							wcsLocalStorage.set('shift_status','0');
+							$rootScope.setShiftDate(wcsLocalStorage.get('shift_date'));
+							return;
+							
+						}
+						if(data.activity == 'shift_started' || data.activity == 'existing_shift_updated') {
+							
+							$rootScope.user.shift_status = true;
+							wcsLocalStorage.set('shift_status','1');
+							$rootScope.setShiftDate(data.start_date);
+							
+							
+						} else if(data.activity == 'no_shift_started') {
+							
+							$rootScope.user.shift_status = false;
+							wcsLocalStorage.set('shift_status','0');
+							$rootScope.setShiftDate(data.end_date);
+							
+						}
+						else {
+							
+							$rootScope.user.shift_status = wcsLocalStorage.get('shift_status') == 0 ? false : true;
+							// wcsLocalStorage.set('shift_status','0');
+							
+							$rootScope.setShiftDate(data.end_date);
 						}
 						shiftStatusUpdated = true;
 					});
 				}
 			};
+			
+			$rootScope.endShift = function() {
+				
+				$rootScope.hide_end_shift_confirmation_popup();
+				$rootScope.show_end_shift_confirmation_popup_2();
+
+			}
+			
+			$rootScope.endShift2 = function() {
+				
+				if(!$rootScope.isSafeToLeave()) {
+					//return;
+					$rootScope.hide_end_shift_confirmation_popup_2();
+					$rootScope.show_end_shift_with_active_lovedones_popup();
+					return;
+				}
+				
+				if(!isConnected()) {
+					
+					$rootScope.user.shift_status = false;
+					wcsLocalStorage.set('shift_status','0');
+					$rootScope.hideElement('.end-shift-confirmation-dialog-overlay-2');
+					
+				} else {
+					
+					$rootScope.enforceEndShift(false);
+					
+				}
+			}
+			
+			$rootScope.enforceEndShift = function(doLogout) {
+				var shiftPromise = Api.post(apiURL + '/employee/activity?employee_id=' + $rootScope.user.id + '&shift_completed=true');
+				shiftPromise.then(function(data) {
+
+					wcsLocalStorage.set('shift_status','0');
+					
+					if(doLogout) {
+						$rootScope.hideElement('.shift-not-ended-dialog-overlay');
+						$rootScope.enforceLogout();
+					} 
+					else {
+						
+						$rootScope.hide_end_shift_confirmation_popup_2();
+					
+						if($rootScope.user.active_lovedones.length == 0) {
+							$location.path('/allpatients');
+						}
+						$rootScope.getShiftStatus();
+					}
+					
+				});
+			}
+			
+			$rootScope.enforceLogout = function() {
+				
+				  wcsLocalStorage.destroy('currentUser');
+				  wcsLocalStorage.set('isLoggedIn', false);
+				  
+				  $rootScope.user = null;
+				  $rootScope.isLoggedIn = false;
+				  $rootScope.$evalAsync();
+				  
+				  if(device.platform == 'android' || device.platform == 'Android' ||	device.platform == 'amazon-fireos') {
+					  navigator.app.exitApp();
+				  } else {
+					  $rootScope.hideElement('.shift-not-ended-dialog-overlay');
+					  $rootScope.hide_end_shift_confirmation_popup_2();
+					  $rootScope.hide_logout_popup();
+					  $location.path('/');
+				  }
+				  
+				  bgGeo.stop();
+				  
+			}
+			
+			$rootScope.startShift = function() {
+				if(!isConnected()) {
+					
+					$rootScope.user.shift_status = true;
+					wcsLocalStorage.set('shift_status','1');
+					
+				} else {
+					var shiftPromise = Api.post(apiURL + '/employee/activity?employee_id=' + $rootScope.user.id + '&shift_started=true' + '&latitude=' + gLat + '&longitude=' + gLng);
+					shiftPromise.then(function(data) {
+						console.log('startShift() > '+JSON.stringify(data));
+						$rootScope.getShiftStatus();
+					});
+				}
+			}
+			
+			$rootScope.toggleShiftStatus = function() {
+				if($rootScope.user.shift_status) {
+					$rootScope.show_end_shift_confirmation_popup();
+				} else {
+					$rootScope.startShift();
+				}
+			}
+			
+			$rootScope.updateLocationToServer = function() {
+				if(!wcsLocalStorage.get('isLoggedIn')) {
+					 return;
+				}
+				if(gLat == 0 || gLng == 0) {
+					return;
+				}
+				if(!isConnected()) {
+					dbService.logLocation();
+				} else {
+					gLoading = false;
+					var prom = Api.post(apiURL+'/employee/'+$rootScope.user.id+'/current_location', {latitude: gLat, longitude: gLng});
+					prom.then(function(data) {
+						 console.log('updateLocationToServer()<::> ' + JSON.stringify(data) + 'gLat:' + gLat + ', gLng' + gLng);
+					});
+				}
+				
+			};
+			
+			$rootScope.startListeningForLocation = function() {
+				//alert('startListeningForLocation');
+				$rootScope.locationListenerId = setInterval(function() {
+				
+					/*if(!wcsLocalStorage.get('isLoggedIn')) {
+						 return;
+					}*/
+				  navigator.geolocation.getCurrentPosition(
+					  $rootScope.onSuccessForLocation,
+					  $rootScope.onErrorForLocation_High,
+					  {maximumAge:600000, timeout:15000, enableHighAccuracy: true}
+					  );
+				}, 5000);
+				
+			};
+			
+			$rootScope.onSuccessForLocation = function(position) {
+				var lat = position.coords.latitude, lng=position.coords.longitude;
+				gLat = lat;
+				gLng = lng;
+				console.log('onSuccessForLocation::>' + gLat + ',  ' + gLng);
+				//console.log('updating location...');
+				
+			}
+			
+			$rootScope.onErrorForLocation_High = function(error) {
+				console.log(JSON.stringify(error));
+			}
+			
+			$rootScope.syncOfflineDataToServer = function() {
+				dbService.getLogData($rootScope.getLogDataCallBack);
+			}
+			
+			$rootScope.getLogDataCallBack = function(dBData) {
+				
+				var ws = Api.post(apiURL + '/employee/'+$rootScope.user.id+'/data_syncing', {data:JSON.stringify(dBData)});
+				ws.then(function(response) {
+
+					var scope = angular.element(document.getElementById('btn-push')).scope();
+					scope.$apply(function() {
+						scope.init();
+					});
+					
+				});
+				
+			}
 	
             $rootScope.init = function() {
-				
-				$rootScope.logtime = $.now();
-				
+				console.log('init() called...');
 				if(!$rootScope.isLoggedIn) return;
+	
+				$rootScope.getShiftStatus();
 				
-				if(!shiftStatusUpdated) {
-					$rootScope.getShiftStatus();
-				}
-
-				
+				registerForPushNotification();
+							
 				if(!isConnected()) {
 				   dbService.fetchLovedOnesFromDB();
 				
@@ -92,8 +438,12 @@ var mSinceLastLovedOnesDBUpdate = 0;
 				}
 
 				var latitude = gLat, longitude=gLng;
-				var promise = Api.post(apiURL+'/employee/'+$rootScope.user.id+'/lovedones',{location:{latitude: latitude, longitude: longitude}});
+				//var promise = Api.post(apiURL+'/employee/'+$rootScope.user.id+'/lovedones',{location:{latitude: latitude, longitude: longitude}});
+				gLoading = true;
+				var promise = Api.post(apiURL+'/employee/'+$rootScope.user.id+'/lovedones', '');
 				promise.then(function(data) {
+					//console.log('ServerData ' + JSON.stringify(data));
+					//alert(''+JSON.stringify(data));
 					var lovedones = (data.lovedones);
 					var employees = (data.employees);
 					var active_trips = (data.active_trips);
@@ -126,18 +476,17 @@ var mSinceLastLovedOnesDBUpdate = 0;
 						lovedones[k].trip = {id: trip[0], status: trip[1]};
 					
 					  $rootScope.user.lovedones.push(lovedones[k]);
-					  if(selected) 
+					  if(selected && selected_by_me) 
 						$rootScope.user.active_lovedones.push(lovedones[k]);
 					}
 					
-					var timestamp = $.now();
-					if(timestamp - mSinceLastLovedOnesDBUpdate >= MAX_INTERVAL_LOVED_ONES) {
+					//if(timestamp - mSinceLastLovedOnesDBUpdate >= MAX_INTERVAL_LOVED_ONES) {
 						//console.log('save to db time reached');
-						mSinceLastLovedOnesDBUpdate = timestamp;
+						//mSinceLastLovedOnesDBUpdate = timestamp;
 						dbService.saveLovedOnesToDB($rootScope.user.lovedones, $rootScope.user.active_lovedones);
-					}
+					//}
 					
-					wcsLocalStorage.set('currentUser', $rootScope.user);
+
 					
 					});
             };
@@ -151,39 +500,93 @@ var mSinceLastLovedOnesDBUpdate = 0;
             $scope.open_activepatients = function(){
                 $location.path('/activepatients');
             }
+			
             $scope.logout = function(){
-	
-			  if($rootScope.user.active_lovedones.length > 0) {
-				$scope.hide_logout_popup();
-				//alert('There is 1 Active Loved One.  Please complete the encounter before logging out.');
-				$scope.show_logout_active_patients_popup();
-				return;  
+			  if( !$rootScope.isSafeToLeave() ) {
+					$rootScope.hide_logout_popup();
+					$rootScope.show_logout_active_patients_popup();
+
+					return;  
+			  }
+			  if( $rootScope.user.shift_status ) {
+				  	$rootScope.hide_logout_popup();
+   			      	$rootScope.show_shift_not_ended_popup();
+				
+					return;  
 			  }
 			
-				
-              wcsLocalStorage.destroy('currentUser');
-              $rootScope.user = null;
-              $rootScope.isLoggedIn = false;
-              $rootScope.$evalAsync();
-              //$location.path('/');
-              wcsLocalStorage.set('isLoggedIn', false);
-			  navigator.app.exitApp();
+			  
+			  $rootScope.enforceLogout();
+			  
             }
 			
-			$scope.hide_logout_popup = function() {
+			$rootScope.hide_logout_popup = function() {
 				$('.logout-confirmation-dialog-overlay').hide();
 				
 			}
-			$scope.show_logout_popup = function() {
+			$rootScope.show_logout_popup = function() {
 				$('.logout-confirmation-dialog-overlay').show();
 			}
-			$scope.hide_logout_active_patients_popup = function() {
-				$('.lotout-active-patients-dialog-overlay').hide();
+			$rootScope.hide_logout_active_patients_popup = function() {
+				$('.logout-active-patients-dialog-overlay').hide();
+			}
+			$rootScope.show_logout_active_patients_popup = function() {
+				$('.logout-active-patients-dialog-overlay').show();	
+			}
+			$rootScope.show_end_shift_confirmation_popup = function() {
+				$('.end-shift-confirmation-dialog-overlay').show();
+			}
+			$rootScope.hide_end_shift_confirmation_popup = function() {
+				$('.end-shift-confirmation-dialog-overlay').hide();
+			}
+			$rootScope.show_end_shift_confirmation_popup_2 = function() {
+				$('.end-shift-confirmation-dialog-overlay-2').show();
+			}
+			$rootScope.hide_end_shift_confirmation_popup_2 = function() {
+				$('.end-shift-confirmation-dialog-overlay-2').hide();
+			}
+			$rootScope.show_no_shift_active_patients_popup = function() {
+				$('.no-active-shift--dialog-overlay').show();
+			}
+			$rootScope.hide_no_shift_active_patients_popup = function() {
+				$('.no-active-shift--dialog-overlay').hide();
+			}
+			$rootScope.cancelShiftEndStep1 = function() {
+				if($rootScope.user.active_lovedones.length == 0) {
+					$location.path('/allpatients');
+				}
+				$rootScope.hide_end_shift_confirmation_popup();
+			}
+			$rootScope.cancelShiftEndStep2 = function() {
+				if($rootScope.user.active_lovedones.length == 0) {
+					$location.path('/allpatients');
+				}
+				$rootScope.hide_end_shift_confirmation_popup_2();
+			}
+			$rootScope.hide_shift_not_ended_popup = function() {
+				$('.shift-not-ended-dialog-overlay').hide();
+				$scope.hide_logout_popup();
 				
 			}
-			$scope.show_logout_active_patients_popup = function() {
-				$('.lotout-active-patients-dialog-overlay').show();
+			$rootScope.show_shift_not_ended_popup = function() {
+				$('.shift-not-ended-dialog-overlay').show();
 			}
+			$rootScope.hide_end_shift_with_active_lovedones_popup = function() {
+				$('.end-shift-with-active-lovedones-dialog-overlay').hide();
+			}
+			
+			$rootScope.show_end_shift_with_active_lovedones_popup = function() {
+				$('.end-shift-with-active-lovedones-dialog-overlay').show();
+			}
+			
+			$rootScope.showElement = function(element) {
+				$(element).show();
+			}
+			
+			$rootScope.hideElement = function(element) {
+				$(element).hide();
+			}
+			
         })
         .directive('ngEnter', function() {
             return function(scope, element, attrs) {
@@ -198,34 +601,12 @@ var mSinceLastLovedOnesDBUpdate = 0;
             });
         };
     });
-	
-
-function onSuccessForLocation(position) {
-	//alert(position.coords.latitude + " , " + position.coords.longitude);
-	var lat = position.coords.latitude, lng=position.coords.longitude;
-	gLat = lat;
-	gLng = lng;
-	//$('#geo').show();
-	//$('#geo').val("success! "+JSON.stringify(position));
-}
-
-function onErrorForLocation_High(error) {
-	  //alert(gLat + " , " + gLng);
-	 /* navigator.geolocation.getCurrentPosition(
-	   onSuccessForLocation, 
-	   onErrorForLocation_Low,
-	   { maximumAge:600000, timeout:10000, enableHighAccuracy: false }
-	  );*/
-}
 
 function onErrorForLocation_Low(error){
   cordova.exec(function(location){
     gLat = location.latitude;
     gLng = location.longitude;
-  }, function(){
-    //$('#geo').show();
-	//alert('onErrorForLocation_Low ');
-    //$('#geo').val("Error! "+JSON.stringify(arguments));
+  }, function() {
   }, "Geolocation", "getGeolocationInfo", []);
 }
 
@@ -242,7 +623,7 @@ function without(array, key, value){
 function where(obj, key, value){
   var ret = false;
   for(var k in obj){
-    if(typeof obj[k][key]!=='undefined' && obj[k][key].toString() === value.toString()){
+    if(typeof obj[k][key]!=='undefined' && obj[k][key].toString() === value.toString()) {
       ret = obj[k]; break;
     }
   }
@@ -252,7 +633,7 @@ function where(obj, key, value){
 function set_where(obj, key, value, key1, value1){
   var success = false;
   for(var k in obj){
-    if(typeof obj[k][key]!=='undefined' && obj[k][key].toString() === value.toString()){
+    if(typeof obj[k][key]!=='undefined' && obj[k][key].toString() === value.toString()) {
       obj[k][key1] = value1; success=true; break;
     }
   }
@@ -290,22 +671,6 @@ function isConnected() {
 	//alert('Connection type: ' + states[networkState]);
 }
 
-function startListeningForLocation() {
-	locationListenerId = setInterval(function(){
-	if(!wcsLocalStorage.get('isLoggedIn')) return;
-	  navigator.geolocation.getCurrentPosition(
-		  onSuccessForLocation,
-		  onErrorForLocation_High,
-		  {maximumAge:600000, timeout:5000, enableHighAccuracy: true}
-		  );
-	}, 6000);
-}
-
-function enablePlugins() {
-	cordova.plugins.backgroundMode.enable();
-	cordova.plugins.backgroundMode.setDefaults({ text:'Doing geolocation tracking.'});
-}
-
 function startDataRefreshLoop() {
 	if(reloadInterval) clearInterval(reloadInterval);
 	var reloadInterval = setInterval(function() {
@@ -318,3 +683,307 @@ function startDataRefreshLoop() {
 	
 }
 
+function startLocationRefreshLoop() {
+	
+	if(locationReloadInterval) clearInterval(locationReloadInterval);
+	
+	var locationReloadInterval = setInterval(function() {
+		
+		$('#btn-location').trigger('click');
+		
+	}, LOCATION_UPDATE_INTERVAL);	
+	
+}
+
+function enablePlugins() {
+	
+	document.addEventListener("online", onOnline, false);
+	document.addEventListener("offline", onOffline, false);
+	
+	cordova.plugins.backgroundMode.enable();
+	cordova.plugins.backgroundMode.setDefaults({ text:'Doing geolocation tracking...'});
+
+	/*if(!isListeningLocation) {
+		isListeningLocation = true;
+		var scope = angular.element(document.getElementById('btn-push')).scope();
+		scope.$apply(function() {
+			scope.startListeningForLocation();
+		});
+		
+	}*/
+	
+	setupLocationPlugin();
+	
+	
+	if(wcsLocalStorage.get('isLoggedIn')) {
+		registerForPushNotification();
+	}
+	
+	setTimeout(function() {
+		CheckGPS.check(function(){},
+		  function(){
+			//GPS is disabled!
+			alert("Your device's GPS is not enabled. Please enable GPS from your device settings.");
+			
+		  });
+	}, 3000);
+	
+}
+
+function setupLocationPlugin() {
+	window.navigator.geolocation.getCurrentPosition(function(location) {
+       console.log('Location from Phonegap ' + JSON.stringify(location));
+    });
+	
+	bgGeo = window.plugins.backgroundGeoLocation;
+	
+	/**
+    * This would be your own callback for Ajax-requests after POSTing background geolocation to your server.
+    */
+    var yourAjaxCallback = function(response) {
+        ////
+        // IMPORTANT:  You must execute the #finish method here to inform the native plugin that you're finished,
+        //  and the background-task may be completed.  You must do this regardless if your HTTP request is successful or not.
+        // IF YOU DON'T, ios will CRASH YOUR APP for spending too much time in the background.
+        //
+        //
+        bgGeo.finish();
+    };
+	
+	/**
+    * This callback will be executed every time a geolocation is recorded in the background.
+    */
+    var callbackFn = function(location) {
+        console.log('[ios] didUpdateLocations():  ' + location.latitude + ', ' + location.longitude);
+		
+		gLat = location.latitude;
+		gLng = location.longitude;
+		
+        // Do your HTTP request here to POST location to your server.
+        //
+        //
+        //yourAjaxCallback.call(this);
+		//bgGeo.finish();
+    };
+	
+	var failureFn = function(error) {
+        console.log('BackgroundGeoLocation error');
+    }
+
+    // BackgroundGeoLocation is highly configurable.
+    bgGeo.configure(callbackFn, failureFn, {
+        url: '', // <-- only required for Android; ios allows javascript callbacks for your http
+        params: {                                               // HTTP POST params sent to your server when persisting locations.
+            foo: 'bar'
+        },
+        desiredAccuracy: 10,
+        stationaryRadius: 0,
+        distanceFilter: 1,
+        debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
+    });
+
+    // Turn ON the background-geolocation system.  The user will be tracked whenever they suspend the app.
+    bgGeo.start();
+	
+	if (device.platform == 'android' || device.platform == 'Android' ||	device.platform == 'amazon-fireos' ) {
+	
+		setInterval(function() {
+			bgGeo.get(function(data) {
+
+					gLat = data.location.latitude;
+					gLng = data.location.longitude;
+									
+					console.log('[android] location update:>  '+gLat + ', ' + gLng); 
+	
+				}, function(error) {
+					//alert(error);
+				}
+			);
+		}, LOCATION_UPDATE_INTERVAL);
+	
+	}
+
+    // If you wish to turn OFF background-tracking, call the #stop method.
+    // bgGeo.stop()
+	
+}
+
+function onOnline() {
+    // Handle the online event
+	if(!wcsLocalStorage.get('isLoggedIn')) {
+		return;
+	}
+	
+	scope.$apply(function() {
+		scope.syncOfflineDataToServer();
+	});
+}
+
+function onOffline() {
+    // Handle the offline event
+	if(!wcsLocalStorage.get('isLoggedIn')) {
+		return;
+	}
+	
+	var scope = angular.element(document.getElementById('btn-push')).scope();
+	scope.$apply(function() {
+		scope.init();
+	});
+	
+	
+}
+
+function registerForPushNotification() {
+	try {
+		pushNotification = window.plugins.pushNotification;
+		
+		if (device.platform == 'android' || device.platform == 'Android' ||	device.platform == 'amazon-fireos' ) {
+			pushNotification.register(successHandler, errorHandler, {"senderID":"520928485818","ecb":"onNotification"});		// required!
+		} else {
+			pushNotification.register(tokenHandler, errorHandler, {"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});	// required!
+		}
+	} catch (err) { 
+		//txt="There was an error on this page.\n\n";
+		//txt+="Error description: " + err.message + "\n\n";
+		//alert(txt);
+	} 
+}
+
+// handle APNS notifications for iOS
+function onNotificationAPN(e) {
+	
+	//mSound.play();
+
+	if (e.alert) {
+		 //$("#app-status-ul").append('<li>push-notification: ' + e.alert + '</li>');
+		 // showing an alert also requires the org.apache.cordova.dialogs plugin
+		 //navigator.notification.alert(e.alert);
+	}
+	if (e.sound) {
+		// playing a sound also requires the org.apache.cordova.media plugin
+		var snd = new Media(e.sound);
+		snd.play();
+	}
+	
+	if (e.badge) {
+		//pushNotification.setApplicationIconBadgeNumber(successHandler, e.badge);
+	}
+	
+	var scope = angular.element(document.getElementById('btn-push')).scope();
+	scope.$apply(function() {
+		var payload = {event:'message', payload:e};
+		scope.handlePush(payload);
+	});
+	
+	//console.log('sound playing...');
+	
+}
+
+
+// handle GCM notifications for Android
+function onNotification(e) {
+
+	//console.log('onNotification(): '+JSON.stringify(e));
+	
+	var scope = angular.element(document.getElementById('btn-push')).scope();
+	scope.$apply(function() {
+		scope.handlePush(e);
+	});
+	
+	
+	
+	switch( e.event )
+	{
+		case 'registered':
+		if ( e.regid.length > 0 )
+		{
+			//alert(JSON.stringify(e));
+			//console.log(JSON.stringify(e));
+			// Your GCM push server needs to know the regID before it can push to this device
+			// here is where you might want to send it the regID for later use.
+			//console.log("regID = " + e.regid);
+		}
+		break;
+		
+		case 'message':
+ 			//mSound.play();
+			my_media.play();
+			// if this flag is set, this notification happened while we were in the foreground.
+			// you might want to play a sound to get the user's attention, throw up a dialog, etc.
+			if (e.foreground)
+			{
+				  
+					// on Android soundname is outside the payload. 
+						// On Amazon FireOS all custom attributes are contained within payload
+						var soundfile = e.soundname || e.payload.sound;
+						// if the notification contains a soundname, play it.
+						// playing a sound also requires the org.apache.cordova.media plugin
+						var my_media = new Media("/android_asset/www/"+ soundfile);
+
+				
+			}
+			else
+			{	// otherwise we were launched because the user touched a notification in the notification tray.
+				/*if (e.coldstart)
+					$("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>');
+				else
+				$("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');*/
+				
+				
+			}
+				
+		break;
+		
+		case 'error':
+			//console.log("error = " + 	console.log(JSON.stringify(e)));
+		break;
+		
+		default:
+			//console.log("default = " + 	console.log(JSON.stringify(e)));
+		break;
+	}
+}
+
+function tokenHandler (result) {
+	// Your iOS push server needs to know the token before it can push to this device
+	// here is where you might want to send it the token for later use.
+	
+	var scope = angular.element(document.getElementById('btn-push')).scope();
+	scope.$apply(function() {
+		var e = {regid: result, event: 'registered'};
+		scope.handlePush(e);
+	});
+}
+
+function successHandler (result) {
+	//console.log('successHandler'+JSON.stringify(result));
+}
+
+function errorHandler (error) {
+	//console.log('errorHandler'+JSON.stringify(error));
+}
+
+function toPushMsg(e) {
+	//alert(JSON.stringify(e));
+	var obj = {};
+	obj['type'] = e.payload.tp;
+	//alert(obj['type']);
+	if(obj['type'] == 8) {
+		//alert('inside if ');
+		obj['lovedone_name'] = e.payload.ln;
+		obj['lovedone_id'] = e.payload.lid;
+		obj['trip_id'] = e.payload.tid;
+		obj['employe_id'] = e.payload.eid;
+	} 
+	else if (obj['type'] == 9) {
+		// alert(JSON.stringify(e));
+	}
+	return obj;
+}
+
+function generateUniqueGUID() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+		return v.toString(16);
+	});
+}

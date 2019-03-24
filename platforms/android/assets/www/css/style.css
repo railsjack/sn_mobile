@@ -1,10 +1,12 @@
 @CHARSET "UTF-8";
 
 body{
-	background: url(../images/bg.png);
+  background: url(../images/bg.png);
   background-size: 100%;
-  background-repeat: no-repeat;
+  background-repeat: repeat-y;
   color: black;
+  padding:0px;
+  margin:0px;
 }
 
 input{ color: black;}
@@ -35,9 +37,17 @@ a:hover, a:visited, a:active{
   width: 100%;
 }
 
+.allpatients .searchBar{
+  padding: 5px 25px;
+  position: fixed;
+  z-index: 10000;
+  top: 70px;
+}
+
 .navbar ul.menu-list{
   list-style: none;
-  padding: 0; margin: 0;
+  padding: 0; 
+  margin: 0;
   display: table-row;
 }
 
@@ -60,59 +70,68 @@ a:hover, a:visited, a:active{
 
 #sign-login{
  }
-  #sign-login .logo-img{
-  	margin: 0 auto;
-  }
-  #sign-login .title{
-  	color: lightgray;
-  	line-height: 100px;
-  }
-  #sign-login #sign-login-email{ 
-  }
-  #sign-login .username{
-    margin-top: 30px;
-  }
-	  #sign-login .login-report{
-	  	margin-top: 10px;
-	  	color: white;
-	  }
-	  #sign-login .username input{
-	    text-indent: 30px;
-	    background: url(../images/login/username-icon.png) no-repeat 10px center white;
-	    background-size: 30px 30px;
-	  }
-  #sign-login .username, #sign-login .password{ 
-    height: 50px;
-  }
-	  #sign-login .password input{
-	    text-indent: 30px;
-	    background: url(../images/login/password-icon.png) no-repeat 13px center white;
-	    background-size: 26px 30px;
-	  }
-  #sign-login .btnlogin{
-  	margin-top: 10px;
-    height: 50px;
-  }
-  #sign-login .btnlogin .btn:hover, #sign-login .btnlogin .btn:visited{
-  	background-color: #75b71b;
-  }
-  #sign-login .btncancel{
-    height: 50px;
-  }
-  #sign-login .btncancel .btn{
-    border-color: white;
-    background: transparent!important;
-  }
+#sign-login .logo-img{
+	margin: 0 auto;
+}
+#sign-login .title{
+	color: lightgray;
+	line-height: 100px;
+}
+#sign-login #sign-login-email{ 
+}
+#sign-login .username{
+	margin-top: 30px;
+}
+#sign-login .login-report{
+	margin-top: 10px;
+	color: white;
+}
+#sign-login .username input {
+    text-indent: 40px;
+    background: url(../images/login/username-icon.png) no-repeat 14px center white;
+    background-size: 25px 28px;
+    font-size: 18pt;
+    font-weight: 400;
+}
+#sign-login .username, #sign-login .password{ 
+	height: 50px;
+}
 
-  
+#sign-login .password input{
+    text-indent: 38px;
+    background: url(../images/login/password-icon.png) no-repeat 13px center white;
+    background-size: 26px 30px;
+    letter-spacing: 0;
+    font-size: 18pt;
+    font-weight: 400;
+    --webkit-text-security: disc;
+}
+
+#sign-login .btnlogin{
+	margin-top: 10px;
+	height: 50px;
+}
+#sign-login .btnlogin .btn:hover, #sign-login .btnlogin .btn:visited{
+	background-color: #75b71b;
+}
+#sign-login .btncancel{
+	height: 50px;
+}
+#sign-login .btncancel .btn{
+	border-color: white;
+	background: transparent!important;
+}
+
 .patients-navbar{
 	border: none;
-	height: 100px;
-    line-height: 100px;
+	height: 130px;
+    line-height: 45px;
+	padding:0px;
+	margin:0px;
 }
 .patients-navbar .title{ 
 	line-height: 30px;
-	font-size: 20px;
+	font-size: 19px;
 	color: lightgray; 
 
 }
@@ -126,7 +145,6 @@ a:hover, a:visited, a:active{
 	background: url(../images/search-icon.png) no-repeat left 10px center white;
 	text-indent: 25px;
 	background-size: 20px 20px;
-	margin-top:55px;
 	
 
 }
@@ -178,11 +196,12 @@ a:hover, a:visited, a:active{
 }
 
 .active-loved-back {
-	
+	margin-top:20px;
 	margin-left:15px;
 	margin-bottom:15px;
+	color:#FF0;
 }
-.patient-dialog{
+/*.patient-dialog{
   position: relative;
   width: calc(100% - 50px); 
   height: 220px; 
@@ -192,7 +211,7 @@ a:hover, a:visited, a:active{
   background-color: rgba(0,0,0,1);
 }
 .logout-confirmation-dialog-overlay{
-	position: absolute; z-index: 100000;
+  position: absolute; z-index: 100000;
   width: 100%;
   height: 100%;
   display:none;
@@ -204,20 +223,22 @@ a:hover, a:visited, a:active{
   display:none;
  }
 .logout-dialog{
-	 position: relative;
-  width: calc(100% - 50px); 
-  height: 120px; 
-  margin: 100px auto;
+  position: relative;
+  width: calc(100% - 70px); 
+  height: 200px; 
+  margin: 140px auto;
   border: solid 1px #666;
   border-radius: 5px;
+  color:#FFF;
   background-color: rgba(0,0,0,1);
 }
 
 .logout-inactive-dialog{
-	 position: relative;
+  position: relative;
   width: calc(100% - 50px); 
-  height: 160px; 
-  margin: 100px auto;
+  height: 200px; 
+  color:#FFF;
+  margin: 140px auto;
   border: solid 1px #666;
   border-radius: 5px;
   background-color: rgba(0,0,0,1);
@@ -231,9 +252,10 @@ a:hover, a:visited, a:active{
  }
  .end-shift-dialog{
   position: relative;
-  width: calc(100% - 50px); 
-  height: 120px; 
-  margin: 100px auto;
+  width: calc(100% - 60px); 
+  height: 180px; 
+  color:#FFF;
+  margin: 130px auto;
   border: solid 1px #666;
   border-radius: 5px;
   background-color: rgba(0,0,0,1);
@@ -247,17 +269,81 @@ a:hover, a:visited, a:active{
  }
 .end-shift-dialog-2{
   position: relative;
-  width: calc(100% - 100px); 
-  height: 120px; 
-  margin: 100px auto;
+  width: calc(100% - 80px); 
+  height: 180px; 
+  margin: 130px auto;
   border: solid 1px #666;
+  color:#FFF;
   border-radius: 5px;
   background-color: rgba(0,0,0,1);
+}*/
+
+.patient-dialog-overlay, .logout-confirmation-dialog-overlay, .logout-active-patients-dialog-overlay, .end-shift-confirmation-dialog-overlay, .end-shift-confirmation-dialog-overlay-2, .no-active-shift--dialog-overlay, .shift-not-ended-dialog-overlay, .end-shift-with-active-lovedones-dialog-overlay, .feature-8-dialog-overlay {
+	position: absolute; z-index: 100000;
+	width: 100%;
+	height: 100%;
+	display: none;
 }
+
+.patient-dialog, .logout-dialog, .logout-inactive-dialog, .end-shift-dialog, .end-shift-dialog-2, .no-shift-inactive-dialog, .shift-not-ended-dialog, .end-shift-with-active-lovedones-dialog, .feature-8-dialog {
+	position: relative;
+	width: calc(100% - 50px); 
+	height: 220px; 
+	margin: 100px 20px;
+	color:#000;
+	border: solid 1px #666;
+	border-radius: 5px;
+	background-color: #FFF;
+
+	
+}
+
+.logout-dialog{
+	width: calc(100% - 70px); 
+	height: 200px; 
+	margin: 140px auto;
+}
+
+.logout-inactive-dialog {
+	width: calc(100% - 50px); 
+	height: 200px; 
+	margin: 140px auto;
+}
+
+.end-shift-dialog {
+	width: calc(100% - 60px); 
+	height: 180px;
+	margin: 130px auto;
+}
+
+.end-shift-dialog-2 {
+	width: calc(100% - 80px); 
+	height: 180px; 
+	margin: 130px auto;
+}
+
+.no-shift-inactive-dialog {
+  width: calc(100% - 50px); 
+  height: 200px; 
+  margin: 130px auto;
+}
+
+.shift-not-ended-dialog {
+	width: calc(100% - 70px); 
+	height: 200px; 
+	margin: 140px auto;
+}
+.feature-8-dialog {
+	width: calc(100% - 70px); 
+	height: 240px; 
+	margin: 140px auto;
+}
+
+/*===*/
  
 
 .patient-dialog a.btn-close{
-  font-size: 20px; color: white; display: block;
+  font-size: 20px; color: black; display: block;
   position: absolute;
   right: 5px;
   top: 5px;
@@ -295,13 +381,6 @@ a:hover, a:visited, a:active{
   background-color: rgba(0,0,0,0.3);
 }
 
-.allpatients .searchBar{
-  padding: 5px 25px;
-  position: fixed;
-  z-index: 10000;
-  top: 40px;
-}
-
 .activepatients{
   width: 100%;
   height: 100%;
@@ -332,7 +411,12 @@ a:hover, a:visited, a:active{
 }
 
 
-
-
-
+/* 
+  Allow angular.js to be loaded in body, hiding cloaked elements until 
+  templates compile.  The !important is important given that there may be 
+  other selectors that are more specific or come later and might alter display.  
+ */
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}
 

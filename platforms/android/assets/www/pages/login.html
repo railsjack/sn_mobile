@@ -1,24 +1,24 @@
 <!-- Login Page -->
-<div calass="scrollable custom-main-general-content" class="navbar-fixed-bottom"
+<div class="navbar-fixed-bottom"
 	>
-	<div class="scrollable-content section" style="position: absolute;
-bottom: 10px;
-height: 590px;">
+	<div class="scrollable-content section" style="position: absolute; bottom: 10px;
+		height: 590px;">
 		<div id="sign-login">
 			<h3 class="title text-center">&nbsp;</h3>
 			<div class="">
 				<div class="col-xs-12 text-center">
-		      <img src="images/logo.png" width="170" />
-		    </div>
+					<img src="images/logo.png" width="170" />
+				</div>
+				<div class="clearfix"></div>
 			</div>
-			<div class="">
+			<div style="margin-top: 50px;">
 				<form name="signLoginForm" class="form-horizontal" novalidate>
 					<div class="col-xs-offset-1 col-xs-10 login-report">{{ loginReport }}</div>
 					<div class="col-xs-offset-1 col-xs-10 username">
-						<input type="text" id="sign-login-email" 
-							placeholder="" autocomplete="off" 
-							ng-model="loginUsername" required
-						  class="form-control" 	/> 
+						<input type="text" id="sign-login-email"
+						placeholder="" autocomplete="off"
+						ng-model="loginUsername" required
+						class="form-control" 	/>
 					</div>
 					<div class="col-xs-offset-1 col-xs-10 password">
 						<input type="password" id="sign-login-password" placeholder="" autocomplete="off" ng-model="loginPassword" required ng-minlength="5" ng-maxlength="16" ng-enter="onLoginSubmit(signLoginForm.$valid)"
@@ -26,17 +26,16 @@ height: 590px;">
 					</div>
 					<div class="col-xs-offset-1 col-xs-10 btnlogin">
 						<a ng-click="onLoginSubmit(signLoginForm.$valid)"
-						class="btn btn-success btn-block" 
+							class="btn btn-success btn-block"
 						>Log In</a>
 					</div>
 					<div class="col-xs-offset-1 col-xs-10 btncancel hidden">
-						<a class="btn btn-success btn-block" 
+						<a class="btn btn-success btn-block"
 						>Cancel</a>
 					</div>
 				</form>
+				<div class="clearfix"></div>
 			</div>
-
-		</div><!-- /page -->
-
+			</div><!-- /page -->
+		</div>
 	</div>
-</div>

@@ -1,0 +1,21 @@
+{
+    "version": "0.9.8",
+    "name": "de.fastr.phonegap.plugins.checkgps",
+    "cordova_name": "checkGPS",
+    "description": "check if GPS is enabled on Android and iOS",
+    "license": "MIT",
+    "repo": "https://github.com/fastrde/phonegap-checkGPS.git",
+    "issue": "https://github.com/fastrde/phonegap-checkGPS/issues",
+    "keywords": [
+        "gps",
+        " check",
+        " enabled",
+        " ios",
+        " android "
+    ],
+    "platforms": [
+        "android",
+        "ios"
+    ],
+    "engines": []
+}

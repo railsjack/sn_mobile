@@ -14,7 +14,7 @@
     "org.apache.cordova.geolocation": {
         "source": {
             "type": "registry",
-            "id": "org.apache.cordova.geolocation"
+            "id": "org.apache.cordova.geolocation@0.3.6"
         }
     },
     "de.appplant.cordova.plugin.background-mode": {
@@ -47,6 +47,58 @@
         "source": {
             "type": "registry",
             "id": "hu.dpal.phonegap.plugins.spinnerdialog"
+        }
+    },
+    "com.phonegap.plugins.PushPlugin": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/phonegap-build/PushPlugin.git",
+            "subdir": "."
+        }
+    },
+    "org.apache.cordova.media": {
+        "source": {
+            "type": "registry",
+            "id": "org.apache.cordova.media"
+        }
+    },
+    "org.apache.cordova.file": {
+        "source": {
+            "type": "registry",
+            "id": "org.apache.cordova.file"
+        }
+    },
+    "cordova-plugin-splashscreen": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/apache/cordova-plugin-splashscreen.git",
+            "subdir": "."
+        }
+    },
+    "de.fastr.phonegap.plugins.CheckGPS": {
+        "source": {
+            "type": "registry",
+            "id": "de.fastr.phonegap.plugins.checkgps"
+        }
+    },
+    "org.apache.cordova.plugin.power-management": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/aharris88/phonegap-powerManagement-plugin.git",
+            "subdir": "."
+        }
+    },
+    "org.transistorsoft.cordova.background-geolocation": {
+        "source": {
+            "type": "git",
+            "url": "https://github.com/christocracy/cordova-plugin-background-geolocation.git",
+            "subdir": "."
+        }
+    },
+    "org.apache.cordova.dialogs": {
+        "source": {
+            "type": "registry",
+            "id": "org.apache.cordova.dialogs"
         }
     }
 }
