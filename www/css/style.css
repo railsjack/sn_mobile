@@ -132,8 +132,7 @@ a:hover, a:visited, a:active{
 .patients-navbar .title{ 
 	line-height: 30px;
 	font-size: 19px;
-	color: lightgray; 
-
+	color: white;
 }
 .patients-navbar .menu-icon img{
 		height: 22px;
