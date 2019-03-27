@@ -420,5 +420,7 @@ a:hover, a:visited, a:active{
 }
 
 .btn-actions.disabled{
+  color: black!important;
   background-color: lightgray!important;
 }
+
