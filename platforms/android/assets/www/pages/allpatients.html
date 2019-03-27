@@ -23,7 +23,7 @@
 			<li data-ng-repeat="lovedone in user.lovedones | filter: search" >
 				<span style="float:right;line-height:50px; color:#F00; margin-right:5px; " ng-show="(lovedone.selected_by_me && !(typeof(lovedone.trip)=='undefined' || (typeof(lovedone.trip)!='undefined' && lovedone.trip.status=='started')) && (lovedone.selected_by_me && !(typeof(lovedone.trip_status) != 'undefined'	&& lovedone.trip_status == 'started'))	) " ng-click="unset_as_active(lovedone)">X</span>
 
-				<span style="float:right;line-height:50px; color:#093; margin-right:35px; " 
+				<span style="float:right;line-height:50px; color:#fff; font-size: 16px; margin-right:35px; " 
 				ng-show="lovedone.selected_by_me" ng-click="open_activepatients()">Activated</span>
 
 				<button ng-show="!lovedone.selected_by_me"
