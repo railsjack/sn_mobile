@@ -13,10 +13,7 @@ snApp
 	}
     
     gLoading = true;
-	/*if(!isConnected()) {
-		dbService.fetchLovedOnesFromDB();
-	}*/
-	
+		
 	$scope.show_patient_dialog = function(lovedone){
 
     $scope.selected_lovedone = lovedone;
@@ -42,7 +39,6 @@ snApp
 				offlineRecord.latitude = gLat;
 				offlineRecord.longitude = gLng;
 				offlineRecord.trip_id = -1;
-				//alert('ALL patents.js: set_as_active::>' + offlineRecord.trip_id + ',' + lovedone.trip_id);
 				offlineRecord.temp_trip_id = -1;
 				offlineRecord.trip_status = 'active';
 				offlineRecord.timestamp = $.now();
@@ -85,7 +81,6 @@ snApp
 				offlineRecord.latitude = gLat;
 				offlineRecord.longitude = gLng;
 				offlineRecord.trip_id = lovedone.trip_id;
-				//alert('ALL patents.js: unset_as_active::>' + offlineRecord.trip_id + ',' + lovedone.trip_id);
 				offlineRecord.temp_trip_id = -1;
 				offlineRecord.trip_status = 'removed';
 				offlineRecord.timestamp = $.now();

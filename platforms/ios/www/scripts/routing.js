@@ -19,7 +19,7 @@ snApp
 	      controller: 'activePatientsController'
 	    })
 	    .when('/allpatients', {
-	      templateUrl: 'pages/allpatients.html',
+	      templateUrl: 'pages/allpatients.html?v1',
 	      controller: 'allPatientsController'
 	    });
 	})

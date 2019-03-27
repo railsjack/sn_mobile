@@ -135,12 +135,14 @@ angular.module('snApp')
   }]);
   
   
-  angular.module('snApp').factory("dbService", ["$rootScope", function($rootScope) {
+  angular.module('snApp').factory("dbService", ["$rootScope", "$location", function($rootScope, $location) {
 		var db = {};
 		db.initDB = function() {
 			console.log('initializing db...');
 			db = window.sqlitePlugin.openDatabase({name: "snapp_offline_db", createFromLocation: 1});
 			isDBInitialized = true;
+			
+			//$rootScope.syncOfflineDataToServer();
 			
 			db.saveLovedOnesToDB = function(lovedones, active_lovedones) {
 				if(!isDBInitialized) {
@@ -224,7 +226,7 @@ angular.module('snApp')
 							
 							// console.log('OBJ:> S'+JSON.stringify(obj));
 							
-							loved_ones[i] = {id:-1, name:'', date_of_birth:'', selected:false, selected_by_me:false, middle_initial:'', first_name:'', last_name:'', trip_id:0, employe_id:0, status:0, db_id:-1, guid:''};
+							loved_ones[i] = {id:-1, name:'', date_of_birth:'', selected:false, selected_by_me:false, middle_initial:'', first_name:'', last_name:'', trip_id:0, employe_id:0, status:0, db_id:-1, guid:'', trip_status:''};
 							
 							loved_ones[i].db_id = obj.db_id;
 							loved_ones[i].id = obj.loved_one_id;
@@ -246,6 +248,7 @@ angular.module('snApp')
 							loved_ones[i].status = 0;
 							loved_ones[i].guid = obj.guid;
 							loved_ones[i].trip_id = obj.trip_id;
+							loved_ones[i].trip_status = obj.trip_status;
 							
 							//console.log('OBJ:> AFTER COPY S:> '+ JSON.stringify(loved_ones[i]));
 							
@@ -273,7 +276,7 @@ angular.module('snApp')
 							//alert('OBJ:> AC '+JSON.stringify(obj));
 							
 							active_loved_ones[i] = {id:-1, name:'', date_of_birth:'', selected:true, selected_by_me:true, middle_initial:'', trip_id:0, employe_id:-1, status:1, first_name:'', 
-							last_name:'', db_id:-1, trip:{}, guid:''};
+							last_name:'', db_id:-1, trip:{}, guid:'', trip_status:''};
 
 							active_loved_ones[i].db_id = obj.db_id;
 							active_loved_ones[i].id = obj.loved_one_id;
@@ -298,6 +301,8 @@ angular.module('snApp')
 							active_loved_ones[i].first_name = obj.first_name;
 							active_loved_ones[i].last_name = obj.last_name;
 							active_loved_ones[i].guid = obj.guid;
+							active_loved_ones[i].trip_status = obj.trip_status;
+							
 							//alert('OBJ:> AC '+JSON.stringify(active_loved_ones[i]));
 							//$rootScope.user.active_lovedones.push(active_loved_ones[i]);
 							
@@ -400,6 +405,9 @@ angular.module('snApp')
 							tx.executeSql(updateQuery2, [], function(tx, res) {
 								
 								$rootScope.$apply(function() {
+									if($rootScope.user.active_lovedones.length == 1) {
+											$rootScope.show_end_shift_confirmation_popup();
+									}
 									$rootScope.init();
 								});
 								
@@ -421,7 +429,13 @@ angular.module('snApp')
 								tx.executeSql(updateQuery, [], function(tx, res) {
 									
 									$rootScope.$apply(function() {
-										$rootScope.init();
+										
+										if($rootScope.user.active_lovedones.length == 1) {
+											$location.path('/allpatients');
+										} else {
+											$rootScope.init();
+										}
+										
 									});
 									
 								}, function(error) {
@@ -447,6 +461,16 @@ angular.module('snApp')
 					});
 				});
 			};
+			
+			db.saveOfflineShiftLog = function(emp_id, shift_status, timestamp) {
+				db.transaction(function(tx) {
+					var insertQuery = "INSERT INTO shifts_offline_log (employee_id, shift_status, timestamp) VALUES (?,?,?) ";
+					tx.executeSql(insertQuery, [emp_id, shift_status, timestamp], function(tx, res) {
+						console.log("SaveOfflineShiftLog() result => " + JSON.stringify(res));
+					});
+				});
+				
+			}
 			
 			
 			db.getLogData = function(callback) {
@@ -481,9 +505,24 @@ angular.module('snApp')
 							
 							}
 							
-							console.log('*******************************\n'+JSON.stringify(logData) + '\n*******************************\n');
 							
-							callback(logData);
+							logData['shifts_log'] = [];
+							
+							tx.executeSql("SELECT * FROM shifts_offline_log", [], function(tx, res) {
+								for(var i = 0; i < res.rows.length; i++) {
+									
+									var obj = res.rows.item(i);
+									
+									logData.shifts_log.push(obj);
+									
+								}
+								
+								//alert('*******************************\n'+JSON.stringify(logData) + '\n*******************************\n');
+							
+							    callback(logData);
+								
+							});
+							
 						});
 						
 						
@@ -492,6 +531,16 @@ angular.module('snApp')
 					
 				});
 				
+			}
+			
+			db.clearOfflineData = function(callback) {
+				db.transaction(function(tx) {
+					tx.executeSql("DELETE FROM actions_log");
+					tx.executeSql("DELETE FROM location_tracking_log");
+					tx.executeSql("DELETE FROM shifts_offline_log");
+					console.log('records deleted...');
+					callback();
+				});
 			}
 			
 		};

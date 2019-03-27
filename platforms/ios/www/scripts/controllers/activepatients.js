@@ -33,7 +33,6 @@ snApp
     }
 
     $scope.select_patient = function(lovedone) {
-		//alert('trip started');
 		if(!$rootScope.forceShiftStatus()) {
 			return;
 		}
@@ -45,7 +44,6 @@ snApp
 				offlineRecord.latitude = gLat;
 				offlineRecord.longitude = gLng;
 				offlineRecord.trip_id = lovedone.trip_id;
-				//alert('active patents.js: select_patient::>' + offlineRecord.trip_id + ',' + lovedone.trip_id);
 				offlineRecord.temp_trip_id = -1;
 				offlineRecord.trip_status = 'started';
 				offlineRecord.timestamp = $.now();
@@ -83,7 +81,6 @@ snApp
 				offlineRecord.latitude = gLat;
 				offlineRecord.longitude = gLng;
 				offlineRecord.trip_id = lovedone.trip_id;
-				//alert('active patents.js: unselect_patient::>' + offlineRecord.trip_id + ',' + lovedone.trip_id);
 				offlineRecord.temp_trip_id = -1;
 				offlineRecord.trip_status = 'completed';
 				offlineRecord.timestamp = $.now();
@@ -119,7 +116,6 @@ snApp
 				offlineRecord.latitude = gLat;
 				offlineRecord.longitude = gLng;
 				offlineRecord.trip_id = lovedone.trip_id;
-				//alert('active patents.js: unset_as_active::>' + offlineRecord.trip_id + ',' + lovedone.trip_id);
 				offlineRecord.temp_trip_id = -1;
 				offlineRecord.trip_status = 'removed';
 				offlineRecord.timestamp = $.now();

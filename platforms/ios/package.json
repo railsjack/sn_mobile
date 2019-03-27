@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "cordova": "^9.0.0",
+    "global": "^4.3.2"
+  }
+}

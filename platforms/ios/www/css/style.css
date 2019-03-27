@@ -86,19 +86,27 @@ a:hover, a:visited, a:active{
 	margin-top: 10px;
 	color: white;
 }
-#sign-login .username input{
-	text-indent: 30px;
-	background: url(../images/login/username-icon.png) no-repeat 10px center white;
-	background-size: 30px 30px;
+#sign-login .username input {
+    text-indent: 40px;
+    background: url(../images/login/username-icon.png) no-repeat 14px center white;
+    background-size: 25px 28px;
+    font-size: 18pt;
+    font-weight: 400;
 }
 #sign-login .username, #sign-login .password{ 
 	height: 50px;
 }
+
 #sign-login .password input{
-	text-indent: 30px;
-	background: url(../images/login/password-icon.png) no-repeat 13px center white;
-	background-size: 26px 30px;
+    text-indent: 38px;
+    background: url(../images/login/password-icon.png) no-repeat 13px center white;
+    background-size: 26px 30px;
+    letter-spacing: 0;
+    font-size: 18pt;
+    font-weight: 400;
+    --webkit-text-security: disc;
 }
+
 #sign-login .btnlogin{
 	margin-top: 10px;
 	height: 50px;
@@ -124,8 +132,7 @@ a:hover, a:visited, a:active{
 .patients-navbar .title{ 
 	line-height: 30px;
 	font-size: 19px;
-	color: lightgray; 
-
+	color: white;
 }
 .patients-navbar .menu-icon img{
 		height: 22px;
@@ -410,5 +417,11 @@ a:hover, a:visited, a:active{
  */
 [ng\:cloak], [ng-cloak], .ng-cloak {
   display: none !important;
+}
+
+.btn-actions.disabled{
+  color: lightgray!important;
+  background-color: transparent!important;
+  border-color: lightgray!important;
 }
 

@@ -17,9 +17,9 @@
         <link rel="stylesheet" href="css/mobile-angular-ui-base.min.css" />
         <link rel="stylesheet" href="css/mobile-angular-ui-desktop.min.css" />
         
-        <!-- Custom CSS -->
+        <link rel="stylesheet" href="fonts/open-sans.css">
         <link rel="stylesheet" href="css/style.css?_=2">
-        <link rel="stylesheet" href="css/custom.css">
+        <link rel="stylesheet" href="css/custom.css?v1">
         
 
         <script type="text/javascript" src="js/bootstrap.min.js"></script>
@@ -41,9 +41,9 @@
         <script type="text/javascript" src="js/PushNotification.js"></script>
         <script type="text/javascript" src="js/geolocation.js"></script>
 
-        <script type="text/javascript" src="scripts/app.js?_=5"></script>
-        <script type="text/javascript" src="scripts/routing.js?_=5"></script>
-        <script type="text/javascript" src="scripts/services/api.js?_=5"></script>
+        <script type="text/javascript" src="scripts/app.js?_=6"></script>
+        <script type="text/javascript" src="scripts/routing.js?_=6"></script>
+        <script type="text/javascript" src="scripts/services/api.js?_=6"></script>
 
         <script type="text/javascript" src="scripts/controllers/login.js?_=2"></script>
         <script type="text/javascript" src="scripts/controllers/flyout.js?_=5"></script>
@@ -141,7 +141,7 @@
                   <div class="text-center">
                     <h4 align="center"style="line-height: 30px; margin-top:30px; margin-bottom: 20px;font-weight: normal;">
                     
-                    {{ user.active_lovedones.length === 1 ? 'There is 1 Active Loved One.' : 'There are ' + user.active_lovedones.length + ' Active Loved Ones.' }}<br>Please complete the encounters before logging out.
+                    {{ user.active_lovedones.length === 1 ? 'There is 1 Active Loved One.' : 'There are ' + user.active_lovedones.length + ' Active Loved Ones.' }}<br>Please complete the encounter(s) before logging out.
                     	
                     </h4>
                     <button class="btn btn-danger" ng-click="hide_logout_active_patients_popup()">
@@ -158,7 +158,7 @@
                     </a>
                   <div class="text-center">
                     <h4 align="center"style="line-height: 30px; margin-top:30px; margin-bottom: 20px;font-weight: normal;">
-                    {{ user.active_lovedones.length === 1 ? 'There is 1 Active Loved One.' : 'There are ' + user.active_lovedones.length + ' Active Loved Ones.' }}<br>Please complete the encounter before ending this shift.
+                    {{ user.active_lovedones.length === 1 ? 'There is 1 Active Loved One.' : 'There are ' + user.active_lovedones.length + ' Active Loved Ones.' }}<br>Please complete the encounter(s) before ending this shift.
                     	
                     </h4>
                     <button class="btn btn-danger" ng-click="hide_end_shift_with_active_lovedones_popup()">
@@ -226,8 +226,12 @@
 <!--<div class="progress-bar-normal" style="background-color:#F00" >Some message goes here...</div> -->
         <nav ng-if="isLoggedIn" class="navbar navbar-default navbar-fixed-bottom">
             <ul class="menu-list">
-                <li><a ng-click="open_allpatients()">ALL <br>LOVED ONES</a></li>
-                <li><div><div style="float:right;color:#FFF; background-image:url(images/count_circle.png);background-repeat:no-repeat;background-position:center;" ng-cloak ng-show="!isSafeToLeave()">&nbsp;&nbsp;{{user.active_lovedones.length}}&nbsp;&nbsp;</div><a ng-click="open_activepatients()">ACTIVE<br>LOVED ONES</a></div></li>
+                <li><div><div style="float:right;color:#FFF; background-image:url(images/count_circle.png);background-repeat:no-repeat;background-position:center; font-size: 15px; display: inline-block; min-width: 17px; text-align: center;" ng-cloak 
+                    >{{user.lovedones.length}}</div><a ng-click="open_allpatients()">ALL<br>LOVED ONES</a></div>
+                </li>
+                <li><div><div style="float:right;color:#FFF; background-image:url(images/count_circle.png);background-repeat:no-repeat;background-position:center; font-size: 15px; display: inline-block; min-width: 17px; text-align: center;" ng-cloak ng-show="!isSafeToLeave()"
+                    >{{user.active_lovedones.length}}</div><a ng-click="open_activepatients()">ACTIVE<br>LOVED ONES</a></div>
+                </li>
                 <li><a ng-click="show_logout_popup()">LOGOUT</a></li>
             </ul>
         </nav>

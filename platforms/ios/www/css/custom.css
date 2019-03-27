@@ -1,5 +1,11 @@
 @CHARSET "UTF-8";
 
+html, body {
+	font-family: 'Open Sans';
+	font-size: 16px;
+}
+
+
 .shift-not-started {
 	width:100%;
 	color:#FFF;

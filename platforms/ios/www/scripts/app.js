@@ -25,11 +25,15 @@ var mSinceLastLovedOnesDBUpdate = 0;
 var mSound;
 
 var bgGeo;
+var bgGeoStarted = false;
+var provder = '';
+var syncCallSent = false;
 
-
-  // var apiURL = 'http://safetynotice.com:3002/api';
-      //var apiURL = 'http://safetynotice.vteamslabs.com/api';
-      var apiURL = 'http://10.28.84.73:3000/api';
+	//var apiURL = 'http://safetynotice.herokuapp.com/api';
+	var apiURL = 'http://app.safetynotice.com/api';
+	//var apiURL = 'http://d4649cc6.ngrok.io/api';
+	//var apiURL = 'http://safetynotice.vteamslabs.com/api';
+	//var apiURL = 'http://10.28.84.73:3000/api';
   
 	snApp.config(['$httpProvider', function($httpProvider) {
             $httpProvider.defaults.useXDomain = true;
@@ -37,18 +41,18 @@ var bgGeo;
           }])
 		.run(function($rootScope, $location, Api, dbService) {
             
-            $rootScope.user = {
-                lovedones: [],
-                active_lovedones: [],
-				shift_status:false,
-				shift_date:'',
-            };
-			
+      $rootScope.user = {
+          lovedones: [],
+          active_lovedones: [],
+          shift_status:false,
+          shift_date:'',
+      };
+
 			$rootScope.locationListenerId = 0;
 
-//    		$rootScope.isLoggedIn = wcsLocalStorage.get('currentUser')!=null && wcsLocalStorage.get('currentUser')!="";
+			// $rootScope.isLoggedIn = wcsLocalStorage.get('currentUser')!=null && wcsLocalStorage.get('currentUser')!="";
 			
-	   		$rootScope.isLoggedIn = wcsLocalStorage.get('isLoggedIn');
+	   	$rootScope.isLoggedIn = wcsLocalStorage.get('isLoggedIn');
             
 			if(device.platform.toLowerCase() === "android") {
 				mSound = new Media('file:///android_asset/www/sound/notify.mp3');
@@ -57,17 +61,17 @@ var bgGeo;
 				mSound = new Media('sound/notify.mp3');
 			}
 			
-            $rootScope.is_taken_by_me = function(lovedone){ 
-              var taken = where($rootScope.user.active_lovedones,'id', lovedone.id);
-              if(!taken) return false;
-              return taken.selected_by_me;
-            };
+      $rootScope.is_taken_by_me = function(lovedone){ 
+        var taken = where($rootScope.user.active_lovedones,'id', lovedone.id);
+        if(!taken) return false;
+        return taken.selected_by_me;
+      };
 			
-            $rootScope.is_already_taken = function(lovedone){
-              if(lovedone==null) return false;
+      $rootScope.is_already_taken = function(lovedone){
+        if(lovedone==null) return false;
 			  return lovedone.selected;
-              //return where($rootScope.user.active_lovedones, 'id', lovedone.id);
-            };
+        //return where($rootScope.user.active_lovedones, 'id', lovedone.id);
+      };
 			
 			$rootScope.endEncounterViaPush = function(selected_push) {
 				$rootScope.hideElement('.feature-8-dialog-overlay');
@@ -187,24 +191,6 @@ var bgGeo;
 				}
 			}
 			
-			$rootScope.setShiftDate = function(date) {
-				if(typeof(date) == 'undefined' || date == '') {
-					$rootScope.user.shift_date = 'xxxx/xx/xx';
-					wcsLocalStorage.set('shift_date', $rootScope.user.shift_date);
-				} else {
-					$rootScope.user.shift_date = date;
-					wcsLocalStorage.set('shift_date', date);
-				}
-			}
-			
-			$rootScope.getShiftDate = function() {
-				if($rootScope.user.shift_date == null || typeof($rootScope.user.shift_date) == 'undefined' || $rootScope.user.shift_date == 'null') {
-					return '';
-				} else {
-					return $rootScope.user.shift_date;
-				}
-			}
-
 			$rootScope.getShiftStatus = function() {
 				$rootScope.user.shift_status = wcsLocalStorage.get('shift_status') == 0 ? false : true;
 				if(!isConnected()) {
@@ -260,6 +246,41 @@ var bgGeo;
 				}
 			};
 			
+			$rootScope.getShiftDate = function() {
+				if($rootScope.user.shift_date == null || typeof($rootScope.user.shift_date) == 'undefined' || $rootScope.user.shift_date == 'null') {
+					return '';
+				} else {
+					return $rootScope.user.shift_date;
+				}
+			}
+			
+			$rootScope.setShiftDate = function(date) {
+				if(typeof(date) == 'undefined' || date == '') {
+					$rootScope.user.shift_date = 'xxxx/xx/xx';
+					wcsLocalStorage.set('shift_date', $rootScope.user.shift_date);
+				} else {
+					$rootScope.user.shift_date = date;
+					wcsLocalStorage.set('shift_date', date);
+				}
+			}		
+			
+			$rootScope.startShift = function() {
+				if(!isConnected()) {
+					
+					$rootScope.user.shift_status = true;
+					wcsLocalStorage.set('shift_status','1');
+					dbService.saveOfflineShiftLog($rootScope.user.id, 1, $.now());
+					$rootScope.setShiftDate(getFormattedCurrentDate());
+					
+				} else {
+					var shiftPromise = Api.post(apiURL + '/employee/activity?employee_id=' + $rootScope.user.id + '&shift_started=true' + '&latitude=' + gLat + '&longitude=' + gLng);
+					shiftPromise.then(function(data) {
+						console.log('startShift() > '+JSON.stringify(data));
+						$rootScope.getShiftStatus();
+					});
+				}
+			}
+			
 			$rootScope.endShift = function() {
 				
 				$rootScope.hide_end_shift_confirmation_popup();
@@ -281,6 +302,13 @@ var bgGeo;
 					$rootScope.user.shift_status = false;
 					wcsLocalStorage.set('shift_status','0');
 					$rootScope.hideElement('.end-shift-confirmation-dialog-overlay-2');
+					// save shift change to local database
+					dbService.saveOfflineShiftLog($rootScope.user.id, 0, $.now());
+					$rootScope.setShiftDate(getFormattedCurrentDate());
+					
+					//if($rootScope.user.active_lovedones.length == 0) {
+						$location.path('/allpatients');
+					//}
 					
 				} else {
 					
@@ -312,6 +340,14 @@ var bgGeo;
 				});
 			}
 			
+			$rootScope.toggleShiftStatus = function() {
+				if($rootScope.user.shift_status) {
+					$rootScope.show_end_shift_confirmation_popup();
+				} else {
+					$rootScope.startShift();
+				}
+			}
+			
 			$rootScope.enforceLogout = function() {
 				
 				  wcsLocalStorage.destroy('currentUser');
@@ -321,7 +357,7 @@ var bgGeo;
 				  $rootScope.isLoggedIn = false;
 				  $rootScope.$evalAsync();
 				  
-				  if(device.platform == 'android' || device.platform == 'Android' ||	device.platform == 'amazon-fireos') {
+				  if(device.platform == 'android' || device.platform == 'Android' || device.platform == 'amazon-fireos') {
 					  navigator.app.exitApp();
 				  } else {
 					  $rootScope.hideElement('.shift-not-ended-dialog-overlay');
@@ -331,44 +367,25 @@ var bgGeo;
 				  }
 				  
 				  bgGeo.stop();
+				  bgGeoStarted = false;
 				  
 			}
 			
-			$rootScope.startShift = function() {
-				if(!isConnected()) {
-					
-					$rootScope.user.shift_status = true;
-					wcsLocalStorage.set('shift_status','1');
-					
-				} else {
-					var shiftPromise = Api.post(apiURL + '/employee/activity?employee_id=' + $rootScope.user.id + '&shift_started=true' + '&latitude=' + gLat + '&longitude=' + gLng);
-					shiftPromise.then(function(data) {
-						console.log('startShift() > '+JSON.stringify(data));
-						$rootScope.getShiftStatus();
-					});
-				}
-			}
-			
-			$rootScope.toggleShiftStatus = function() {
-				if($rootScope.user.shift_status) {
-					$rootScope.show_end_shift_confirmation_popup();
-				} else {
-					$rootScope.startShift();
-				}
-			}
-			
 			$rootScope.updateLocationToServer = function() {
+				console.log('Start of updateLocationToServer() ' + gLat + ' :: ' + gLng);
 				if(!wcsLocalStorage.get('isLoggedIn')) {
 					 return;
 				}
 				if(gLat == 0 || gLng == 0) {
+					console.log('RETURN of updateLocationToServer() ' + gLat + ' :: ' + gLng);
 					return;
 				}
 				if(!isConnected()) {
 					dbService.logLocation();
 				} else {
+					console.log('GOING TO UPDATE updateLocationToServer() ' + gLat + ' :: ' + gLng);
 					gLoading = false;
-					var prom = Api.post(apiURL+'/employee/'+$rootScope.user.id+'/current_location', {latitude: gLat, longitude: gLng});
+					var prom = Api.post(apiURL+'/employee/'+$rootScope.user.id+'/current_location', {latitude: gLat, longitude: gLng, provder: provder});
 					prom.then(function(data) {
 						 console.log('updateLocationToServer()<::> ' + JSON.stringify(data) + 'gLat:' + gLat + ', gLng' + gLng);
 					});
@@ -396,7 +413,8 @@ var bgGeo;
 				var lat = position.coords.latitude, lng=position.coords.longitude;
 				gLat = lat;
 				gLng = lng;
-				console.log('onSuccessForLocation::>' + gLat + ',  ' + gLng);
+				provider = position.coords.provider;
+				//console.log('onSuccessForLocation::>' + gLat + ',  ' + gLng + ', provider:');
 				//console.log('updating location...');
 				
 			}
@@ -410,24 +428,45 @@ var bgGeo;
 			}
 			
 			$rootScope.getLogDataCallBack = function(dBData) {
-				
-				var ws = Api.post(apiURL + '/employee/'+$rootScope.user.id+'/data_syncing', {data:JSON.stringify(dBData)});
+				console.log('getLogDataCallBack()');
+				//var ws = Api.post(apiURL + '/employee/'+$rootScope.user.id+'/data_syncing', {data:JSON.stringify(dBData)});
+				var ws = Api.post(apiURL + '/employee/data_syncing', {data:JSON.stringify(dBData)});
 				ws.then(function(response) {
-
-					var scope = angular.element(document.getElementById('btn-push')).scope();
-					scope.$apply(function() {
-						scope.init();
-					});
+					
+					// alert(JSON.stringify(response));
+					syncCallSent = true;
+					dbService.clearOfflineData($rootScope.offlineDBClearCallBack);
 					
 				});
 				
 			}
-	
+			
+			$rootScope.offlineDBClearCallBack = function() {
+				$rootScope.init();
+			}
+			
             $rootScope.init = function() {
 				console.log('init() called...');
+				
+				if(isConnected() && !syncCallSent) {
+					$rootScope.syncOfflineDataToServer();
+					return;
+				}
+				
 				if(!$rootScope.isLoggedIn) return;
 	
 				$rootScope.getShiftStatus();
+				
+				if(!bgGeoStarted) {
+					console.log('bgGeo NOT started. trying to restart...');
+					if(typeof(bgGeo) == 'undefined' || bgGeo == null) {
+						setupLocationPlugin();
+					} else {
+						bgGeo.start();
+						bgGeoStarted = true;
+						console.log('bgGeo started...');
+					}
+				}
 				
 				registerForPushNotification();
 							
@@ -779,11 +818,14 @@ function setupLocationPlugin() {
         desiredAccuracy: 10,
         stationaryRadius: 0,
         distanceFilter: 1,
-        debug: false // <-- enable this hear sounds for background-geolocation life-cycle.
+        debug: false, // <-- enable this hear sounds for background-geolocation life-cycle.
+		stopOnTerminate: true // <-- enable this to clear background location settings when the app terminates
     });
 
     // Turn ON the background-geolocation system.  The user will be tracked whenever they suspend the app.
     bgGeo.start();
+	bgGeoStarted = true;
+	console.log('setupLocationPlugin():: bgGeo started.');
 	
 	if (device.platform == 'android' || device.platform == 'Android' ||	device.platform == 'amazon-fireos' ) {
 	
@@ -792,6 +834,7 @@ function setupLocationPlugin() {
 
 					gLat = data.location.latitude;
 					gLng = data.location.longitude;
+					provder = data.location.provider;
 									
 					console.log('[android] location update:>  '+gLat + ', ' + gLng); 
 	
@@ -810,10 +853,11 @@ function setupLocationPlugin() {
 
 function onOnline() {
     // Handle the online event
-	if(!wcsLocalStorage.get('isLoggedIn')) {
+	/*if(!wcsLocalStorage.get('isLoggedIn')) {
 		return;
-	}
+	}*/
 	
+	var scope = angular.element(document.getElementById('btn-push')).scope();
 	scope.$apply(function() {
 		scope.syncOfflineDataToServer();
 	});
@@ -907,7 +951,7 @@ function onNotification(e) {
 		
 		case 'message':
  			//mSound.play();
-			my_media.play();
+			
 			// if this flag is set, this notification happened while we were in the foreground.
 			// you might want to play a sound to get the user's attention, throw up a dialog, etc.
 			if (e.foreground)
@@ -918,8 +962,8 @@ function onNotification(e) {
 						var soundfile = e.soundname || e.payload.sound;
 						// if the notification contains a soundname, play it.
 						// playing a sound also requires the org.apache.cordova.media plugin
-						var my_media = new Media("/android_asset/www/"+ soundfile);
-
+						//var my_media = new Media("/android_asset/www/"+ soundfile);
+						//my_media.play();
 				
 			}
 			else
@@ -986,4 +1030,17 @@ function generateUniqueGUID() {
 		var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
 		return v.toString(16);
 	});
+}
+
+function getFormattedCurrentDate() {
+	var d = new Date();
+
+	var month = d.getMonth()+1;
+	var day = d.getDate();
+	var year = d.getFullYear();
+	var hrs = d.getHours();
+	var mins = d.getMinutes();
+	
+	return '' + (month<10?'0'+month:month) + '-' + (day<10?'0'+day:day) + '-' + year.toString().substr(2,2) + ' ' + (hrs<10?'0'+hrs:hrs) + ':' + (mins<10?'0'+mins:mins);
+	
 }
