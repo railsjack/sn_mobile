@@ -39,20 +39,19 @@
       <br><small>({{lovedone.date_of_birth}})</small>
     </h4>
     <p class="text-right">
-      <button class="btn btn-success btn-sm" style="font-size: 18px;"
+      <button class="btn btn-success btn-sm" style="font-size: 16px;"
         ng-class="{disabled: typeof(lovedone.trip)=='undefined' || (typeof(lovedone.trip)!='undefined' && lovedone.trip.status=='started')}" 
         ng-click="select_patient({{lovedone}})"  id="{{'pick'+lovedone.trip.id}}"  >
         {{dialog_button1}}
       </button>
       &nbsp;&nbsp;
-      <button class="btn btn-warning btn-sm" style="font-size: 18px; color: black; "
+      <button class="btn btn-warning btn-sm" style="font-size: 16px; color: black; "
         ng-class="{disabled: typeof(lovedone.trip)=='undefined' || (typeof(lovedone.trip)!='undefined' && lovedone.trip.status!='started')}"
         ng-click="unselect_patient({{lovedone}})" id="{{'departure'+lovedone.trip.id}}"  >
         {{dialog_button2}}
       </button>
-
       &nbsp;&nbsp;
-      <button class="btn btn-danger btn-sm"  style="font-size: 18px;"
+      <button class="btn btn-danger btn-sm"  style="font-size: 16px;"
         ng-class="{disabled: typeof(lovedone.trip)=='undefined' || (typeof(lovedone.trip)!='undefined' && lovedone.trip.status=='started')}" 
         ng-click="unset_as_active({{lovedone}})" id="{{'remove'+lovedone.trip.id}}" >
         Remove
