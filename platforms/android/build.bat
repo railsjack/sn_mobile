@@ -11,9 +11,9 @@ jarsigner -verify -verbose -certs .\build\outputs\apk\SafetyNotice-v0.0.3.apk
 copy .\build\outputs\apk\SafetyNotice-v0.0.3.apk ..\..\www
 copy .\build\outputs\apk\SafetyNotice-v0.0.3.apk ..\..\..\sn_site\public
 set ORIGIN_WORK_DIR=%CD%
-cd ..\..\..\sn_site
-git pull
-git add .
-git commit -m "Added a compiled APK"
-git push
-cd %ORIGIN_WORK_DIR%
+rem cd ..\..\..\sn_site
+rem git pull
+rem git add .
+rem git commit -m "Added a compiled APK"
+rem git push
+rem cd %ORIGIN_WORK_DIR%
