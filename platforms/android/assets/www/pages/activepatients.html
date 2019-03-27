@@ -45,7 +45,7 @@
         {{dialog_button1}}
       </button>
       &nbsp;&nbsp;
-      <button class="btn btn-warning btn-sm" style="font-size: 18px;"
+      <button class="btn btn-warning btn-sm" style="font-size: 18px; color: black; "
         ng-class="{disabled: typeof(lovedone.trip)=='undefined' || (typeof(lovedone.trip)!='undefined' && lovedone.trip.status!='started')}"
         ng-click="unselect_patient({{lovedone}})" id="{{'departure'+lovedone.trip.id}}"  >
         {{dialog_button2}}

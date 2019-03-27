@@ -226,8 +226,12 @@
 <!--<div class="progress-bar-normal" style="background-color:#F00" >Some message goes here...</div> -->
         <nav ng-if="isLoggedIn" class="navbar navbar-default navbar-fixed-bottom">
             <ul class="menu-list">
-                <li><div><div style="float:right;color:#FFF; background-image:url(images/count_circle.png);background-repeat:no-repeat;background-position:center; font-size: 15px;" ng-cloak >&nbsp;&nbsp;{{user.lovedones.length}}&nbsp;&nbsp;</div><a ng-click="open_allpatients()">ALL<br>LOVED ONES</a></div></li>
-                <li><div><div style="float:right;color:#FFF; background-image:url(images/count_circle.png);background-repeat:no-repeat;background-position:center; font-size: 15px;" ng-cloak ng-show="!isSafeToLeave()">&nbsp;&nbsp;{{user.active_lovedones.length}}&nbsp;&nbsp;</div><a ng-click="open_activepatients()">ACTIVE<br>LOVED ONES</a></div></li>
+                <li><div><div style="float:right;color:#FFF; background-image:url(images/count_circle.png);background-repeat:no-repeat;background-position:center; font-size: 15px; display: inline-block; min-width: 17px; text-align: center;" ng-cloak 
+                    >{{user.lovedones.length}}</div><a ng-click="open_allpatients()">ALL<br>LOVED ONES</a></div>
+                </li>
+                <li><div><div style="float:right;color:#FFF; background-image:url(images/count_circle.png);background-repeat:no-repeat;background-position:center; font-size: 15px; display: inline-block; min-width: 17px; text-align: center;" ng-cloak ng-show="!isSafeToLeave()"
+                    >{{user.active_lovedones.length}}</div><a ng-click="open_activepatients()">ACTIVE<br>LOVED ONES</a></div>
+                </li>
                 <li><a ng-click="show_logout_popup()">LOGOUT</a></li>
             </ul>
         </nav>
