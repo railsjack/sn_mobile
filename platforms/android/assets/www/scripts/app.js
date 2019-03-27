@@ -29,8 +29,8 @@ var bgGeoStarted = false;
 var provder = '';
 var syncCallSent = false;
 
-	var apiURL = 'http://safetynotice.herokuapp.com/api';
-	//var apiURL = 'http://app.safetynotice.com/api';
+	//var apiURL = 'http://safetynotice.herokuapp.com/api';
+	var apiURL = 'http://app.safetynotice.com/api';
 	//var apiURL = 'http://d4649cc6.ngrok.io/api';
 	//var apiURL = 'http://safetynotice.vteamslabs.com/api';
 	//var apiURL = 'http://10.28.84.73:3000/api';
